@@ -5,10 +5,14 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
-    "devserve": "webpack-dev-server"
+    "devserve": "webpack-dev-server",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -b gh-pages -d dist"
   },
+  "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
     "file-loader": "^6.0.0",
+    "gh-pages": "^2.2.0",
     "raw-loader": "^4.0.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
