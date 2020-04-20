@@ -1,0 +1,26 @@
+{
+  "name": "sad-graphs-webpack",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack",
+    "devserve": "webpack-dev-server"
+  },
+  "devDependencies": {
+    "file-loader": "^6.0.0",
+    "raw-loader": "^4.0.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "dependencies": {
+    "google-palette": "^1.1.0",
+    "graphology": "^0.17.1",
+    "graphology-gexf": "^0.5.1",
+    "graphology-layout": "^0.2.0",
+    "graphology-layout-forceatlas2": "^0.4.3",
+    "random": "^2.2.0",
+    "sigma": "^2.0.0-alpha32",
+    "webpack": "^4.42.1"
+  }
+}
