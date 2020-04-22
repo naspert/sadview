@@ -14,6 +14,6 @@ module.exports = {
         port: 9000
     },
     plugins: [new CopyWebpackPlugin([
-        { from: 'data' }
+        { from: 'data' }, { from: 'static'}
     ])]
 };
