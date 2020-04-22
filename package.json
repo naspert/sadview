@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "devserve": "webpack-dev-server",
-    "predeploy": "yarn run build",
+    "predeploy": "yarn run build --mode production",
     "deploy": "gh-pages -b gh-pages -d dist"
   },
   "homepage": "https://naspert.github.io/sadview",
