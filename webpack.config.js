@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/index.js',
@@ -12,12 +13,7 @@ module.exports = {
         compress: true,
         port: 9000
     },
-    module: {
-        rules: [
-            {
-                test: /\.gexf$/,
-                use: ['raw-loader']
-            }
-        ]
-    }
+    plugins: [new CopyWebpackPlugin([
+        { from: 'data' }
+    ])]
 };
