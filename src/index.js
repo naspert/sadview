@@ -52,13 +52,13 @@ function layout_graph(graph_data) {
 
     return graphObj;
 }
-let base_url = '/';
+let base_url = "";
 if (process.env.NODE_ENV !== 'production') {
       console.log('Looks like we are in development mode!');
  } else {
-    base_url = '/sadview/';
+    base_url = process.env.BASE_URL;
 }
-ky.get(base_url + 'graph_reddit_t2_md2.json.gz')
+ky.get(base_url + '/graph_reddit_t2_md2.json.gz')
     .then(res => res.arrayBuffer())
     .then(ab => pako.inflate(ab, {to:'string'}))
     .then(r => JSON.parse(r))
