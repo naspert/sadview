@@ -7,7 +7,7 @@
     "build": "webpack",
     "devserve": "webpack-dev-server",
     "predeploy": "yarn run build --mode=production",
-    "deploy": "gh-pages -b gh-pages -d dist"
+    "deploy": "gh-pages -b gh-pages -d public"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
