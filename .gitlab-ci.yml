@@ -1,0 +1,11 @@
+image: node:lts-buster-slim
+pages:
+  script:
+    - yarn install
+    - yarn predeploy
+    
+  artifacts:
+    paths:
+      - dist
+  only:
+    - master
