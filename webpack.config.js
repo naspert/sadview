@@ -1,7 +1,7 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
-
+const webpack = require('webpack')
 
 module.exports = {
         entry: './src/index.js',
@@ -19,7 +19,11 @@ module.exports = {
             new CopyWebpackPlugin([
                 {from: 'data'}, {from: 'static'}
             ]),
-            new Dotenv()
+            new Dotenv(),
+            new webpack.ProvidePlugin({
+                $: 'jquery',
+                jQuery: 'jquery'
+            })
         ],
     module: {
         rules: [

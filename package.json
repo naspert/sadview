@@ -7,7 +7,7 @@
     "build": "webpack",
     "devserve": "webpack-dev-server",
     "predeploy": "yarn run build --mode=production",
-    "deploy": "gh-pages -b gh-pages -d public"
+    "deploy": "gh-pages -b gh-pages -d public -o origin-gh"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
@@ -27,6 +27,7 @@
     "bootstrap": "^4.4.1",
     "google-palette": "^1.1.0",
     "graphology": "^0.17.1",
+    "graphology-gexf": "^0.5.1",
     "graphology-layout": "^0.2.0",
     "graphology-layout-forceatlas2": "^0.4.3",
     "jquery": "^3.5.0",

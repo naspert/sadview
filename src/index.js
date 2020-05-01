@@ -1,4 +1,5 @@
 import graph from 'graphology';
+import gexf from 'graphology-gexf';
 import degree from 'graphology-metrics/degree';
 import randomLayout from 'graphology-layout/random';
 import FA2Layout from 'graphology-layout-forceatlas2';
@@ -10,13 +11,20 @@ import ky from 'ky';
 import pako from 'pako';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import $ from 'jquery';
 
 function format_attributes(attr_data) {
     const user_details = JSON.parse(attr_data['user_details']);
     const name = JSON.parse(attr_data['name']);
-    return `<h1>${name}</h1><p>${user_details}</p>`;
+    return `<h2>${name}</h2><p>${user_details}</p>`;
 }
+
+function format_attributes_gexf(attr_data) {
+    const user_details = attr_data['user_details'];
+    const name = attr_data['name'];
+    return `<h2>${name}</h2><p>${user_details}</p>`;
+}
+
 
 function layout_graph(graph_data) {
     //console.log("data:" + graph_data);
@@ -68,6 +76,71 @@ function layout_graph(graph_data) {
 
     return graphObj;
 }
+function render_graph(filename) {
+    let gtype = 'json';
+    console.log('Rendering ' + filename);
+    if (window.graph)
+        window.graph.clear();
+    ky.get(base_url + '/' + filename)
+        .then(res => res.arrayBuffer())
+        .then(ab => pako.inflate(ab, {to:'string'}))
+        .then(r => {
+            if (filename.endsWith('json.gz'))
+                return JSON.parse(r);
+            else if (filename.endsWith('gexf.gz')) {
+                gtype = 'gexf'
+                return gexf.parse(graph, r);
+            }
+        })
+        .then(graph_data => {
+
+            const g = layout_graph(graph_data);
+            const container = $('#sigma-container');
+            const infodisp = $('#info-disp');
+            const renderer = new WebGLRenderer(g, container[0], {
+                nodeReducer,
+                edgeReducer,
+                zIndex: true
+            });
+
+            renderer.on('enterNode', ({node}) => {
+                console.log('Entering: ', node);
+                highlighedNodes = new Set(g.neighbors(node));
+                highlighedNodes.add(node);
+
+                highlighedEdges = new Set(g.edges(node));
+
+                renderer.refresh();
+            });
+
+            renderer.on('leaveNode', ({node}) => {
+                console.log('Leaving:', node);
+
+                highlighedNodes.clear();
+                highlighedEdges.clear();
+
+                renderer.refresh();
+            });
+
+            renderer.on('clickNode', ({node}) => {
+                console.log('Clicking:', node);
+                const attr = g.getNodeAttributes(node);
+                if (gtype == 'json')
+                    infodisp[0].innerHTML = format_attributes(attr);
+                else
+                    infodisp[0].innerHTML = format_attributes_gexf(attr);
+            });
+
+            console.time('Layout');
+            FA2Layout.assign(g, 100, {});
+            console.timeEnd('Layout');
+
+            window.graph = g;
+            window.renderer = renderer;
+            window.camera = renderer.camera;
+
+    });
+}
 
 let base_url = "";
 let highlighedNodes = new Set();
@@ -85,57 +158,45 @@ const edgeReducer = (edge, data) => {
 
     return data;
 };
+
+// setup data path
 if (process.env.NODE_ENV !== 'production') {
       console.log('Looks like we are in development mode!');
  } else {
     base_url = process.env.BASE_URL;
 }
-ky.get(base_url + '/graph_reddit_t2_md2.json.gz')
-    .then(res => res.arrayBuffer())
-    .then(ab => pako.inflate(ab, {to:'string'}))
-    .then(r => JSON.parse(r))
-    //.then(res => res.text())
-    .then(graph_data => {
-        const g = layout_graph(graph_data);
-        const container = document.getElementById('sigma-container');
-        const infodisp = document.getElementById('info-disp')
-        const renderer = new WebGLRenderer(g, container, {
-            nodeReducer,
-            edgeReducer,
-            zIndex: true
-        });
 
-        renderer.on('enterNode', ({node}) => {
-            console.log('Entering: ', node);
-            highlighedNodes = new Set(g.neighbors(node));
-            highlighedNodes.add(node);
+// data file
+const data_files = [{'label':'reddit', 'file':'graph_reddit_t2_md2.json.gz'},
+    {'label':'voat', 'file':'graph_t2_md2_graph.gexf.gz'}];
 
-            highlighedEdges = new Set(g.edges(node));
 
-            renderer.refresh();
-        });
+// populate dropdown
+const dropdown = $('#graph-selector');
+dropdown.empty();
+$.each(data_files, function(key, value) {
+    dropdown.append($('<a class="dropdown-item"></a>')
+        .attr('data-graph', value.file)
+        .attr('id', value.label)
+        .attr('data-label', value.label)
+        .text(value.label));
+});
 
-        renderer.on('leaveNode', ({node}) => {
-            console.log('Leaving:', node);
+// register click handler
+$('.dropdown-menu').click((event) => {
+    const menu_clicked = $(event.target);
+    console.log('Clicked menu: ' + menu_clicked.data('label'));
+    if (menu_clicked.hasClass('active')) // nothing to do
+        return;
 
-            highlighedNodes.clear();
-            highlighedEdges.clear();
-
-            renderer.refresh();
-        });
-
-        renderer.on('clickNode', ({node}) => {
-            console.log('Clicking:', node);
-            const attr = g.getNodeAttributes(node);
-            infodisp.innerHTML = format_attributes(attr);
-        });
-
-        console.time('Layout');
-        FA2Layout.assign(g, 100, {});
-        console.timeEnd('Layout');
-
-        window.graph = g;
-        window.renderer = renderer;
-        window.camera = renderer.camera;
-
+    dropdown.children().each(function() {
+        $(this).removeClass('active');
     });
+    $('#' + menu_clicked.data('label')).addClass('active');
+    render_graph($('#' + menu_clicked.data('label')).data('graph'));
+});
+
+// load default graph
+$('#reddit').addClass('active');
+render_graph(data_files[0]['file']);
+
