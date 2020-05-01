@@ -4,21 +4,29 @@ const Dotenv = require('dotenv-webpack');
 
 
 module.exports = {
-    entry: './src/index.js',
-    output: {
-        filename: 'main.js',
-        path: path.resolve(__dirname, 'public'),
-    },
-    devtool: 'inline-source-map',
-    devServer: {
-        contentBase: path.join(__dirname, 'public'),
-        compress: true,
-        port: 9000
-    },
-    plugins: [
-        new CopyWebpackPlugin([
-        { from: 'data' }, { from: 'static'}
-        ]),
-        new Dotenv()
-    ]
+        entry: './src/index.js',
+        output: {
+            filename: 'main.js',
+            path: path.resolve(__dirname, 'public'),
+        },
+        devtool: 'inline-source-map',
+        devServer: {
+            contentBase: path.join(__dirname, 'public'),
+            compress: true,
+            port: 9000
+        },
+        plugins: [
+            new CopyWebpackPlugin([
+                {from: 'data'}, {from: 'static'}
+            ]),
+            new Dotenv()
+        ],
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            }
+        ]
+    }
 };

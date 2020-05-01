@@ -8,9 +8,15 @@ import random from 'random';
 import seedrandom from 'seedrandom';
 import ky from 'ky';
 import pako from 'pako';
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
-
+function format_attributes(attr_data) {
+    const user_details = JSON.parse(attr_data['user_details']);
+    const name = JSON.parse(attr_data['name']);
+    return `<h1>${name}</h1><p>${user_details}</p>`;
+}
 
 function layout_graph(graph_data) {
     //console.log("data:" + graph_data);
@@ -91,7 +97,8 @@ ky.get(base_url + '/graph_reddit_t2_md2.json.gz')
     //.then(res => res.text())
     .then(graph_data => {
         const g = layout_graph(graph_data);
-        const container = document.getElementById('container');
+        const container = document.getElementById('sigma-container');
+        const infodisp = document.getElementById('info-disp')
         const renderer = new WebGLRenderer(g, container, {
             nodeReducer,
             edgeReducer,
@@ -115,6 +122,12 @@ ky.get(base_url + '/graph_reddit_t2_md2.json.gz')
             highlighedEdges.clear();
 
             renderer.refresh();
+        });
+
+        renderer.on('clickNode', ({node}) => {
+            console.log('Clicking:', node);
+            const attr = g.getNodeAttributes(node);
+            infodisp.innerHTML = format_attributes(attr);
         });
 
         console.time('Layout');
