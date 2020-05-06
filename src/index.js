@@ -13,15 +13,9 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import $ from 'jquery';
 
-function format_attributes(attr_data) {
-    const user_details = JSON.parse(attr_data['user_details']);
-    const name = JSON.parse(attr_data['name']);
-    return `<h2>${name}</h2><p>${user_details}</p>`;
-}
-
-function format_attributes_gexf(attr_data) {
-    const user_details = attr_data['user_details'];
-    const name = attr_data['name'];
+function format_attributes(attr_data, attr_func) {
+    const user_details = attr_func(attr_data['user_details']);
+    const name = attr_func(attr_data['name']);
     return `<h2>${name}</h2><p>${user_details}</p>`;
 }
 
@@ -125,10 +119,10 @@ function render_graph(filename) {
             renderer.on('clickNode', ({node}) => {
                 console.log('Clicking:', node);
                 const attr = g.getNodeAttributes(node);
-                if (gtype == 'json')
-                    infodisp[0].innerHTML = format_attributes(attr);
+                if (gtype === 'json')
+                    infodisp[0].innerHTML = format_attributes(attr, JSON.parse);
                 else
-                    infodisp[0].innerHTML = format_attributes_gexf(attr);
+                    infodisp[0].innerHTML = format_attributes(attr, (x) =>{return x});
             });
 
             console.time('Layout');
