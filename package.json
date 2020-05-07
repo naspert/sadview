@@ -9,7 +9,7 @@
     "predeploy": "yarn run build --mode=production",
     "deploy": "gh-pages -b gh-pages -d public -o origin-gh",
     "layout": "node src/layout.js",
-    "prebuild": "node src/layout.js data public 200"
+    "postbuild": "node src/layout.js data public 200"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
