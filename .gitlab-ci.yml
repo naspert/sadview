@@ -2,7 +2,7 @@ image: node:lts-buster-slim
 pages:
   script:
     - yarn install
-    - yarn predeploy
+    - yarn build --mode=production
     
   artifacts:
     paths:
