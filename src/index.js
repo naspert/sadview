@@ -98,7 +98,9 @@ if (process.env.NODE_ENV !== 'production') {
 // data file
 const dataFiles = [{'label':'reddit', 'file':'graph_reddit_t2_md2_graph.json.gz', 'escape': true},
     {'label':'voat', 'file':'voat_t2_md2_graph.json.gz', 'escape': false},
-    {'label':'gbr', 'file':'zgbr_t2_md6_graph.json.gz', 'escape':false}];
+    {'label':'gbr', 'file':'zgbr_t2_md6_graph.json.gz', 'escape':false},
+    {'label': 'nas', 'file': 'nas_graph.json.gz', 'escape':false},
+    {'label':'miz', 'file':'miz_t2_md2.json.gz', 'escape':false}];
 
 
 // populate dropdown
