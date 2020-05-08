@@ -111,6 +111,7 @@ $.each(dataFiles, function(key, value) {
         .attr('data-graph', value.file)
         .attr('id', value.label)
         .attr('data-label', value.label)
+        .attr('data-escape', value.escape)
         .text(value.label));
 });
 
@@ -124,8 +125,9 @@ $('.dropdown-menu').click((event) => {
     dropdown.children().each(function() {
         $(this).removeClass('active');
     });
-    $('#' + menu_clicked.data('label')).addClass('active');
-    renderGraph($('#' + menu_clicked.data('label')).data('graph'));
+    const item = $('#' + menu_clicked.data('label'));
+    item.addClass('active');
+    renderGraph(item.data('graph'), item.data('escape'));
 });
 
 // load default graph
