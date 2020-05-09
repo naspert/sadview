@@ -2,8 +2,11 @@ import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
 import ky from 'ky';
 import pako from 'pako';
-import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+import 'select2';
+import 'select2/dist/css/select2.min.css';
+import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import $ from 'jquery';
 
 function formatAttributes(attr_data, attr_func) {
@@ -33,6 +36,7 @@ function renderGraph(filename, escapeAttr) {
             const renderer = new WebGLRenderer(g, container[0], {
                 nodeReducer,
                 edgeReducer,
+                labelRenderer: drawCustomLabel,
                 zIndex: true
             });
 
@@ -63,7 +67,19 @@ function renderGraph(filename, escapeAttr) {
             });
 
 
-
+            const select_data = $.map(g.nodes(), function (n) {
+                return {
+                    id: n,
+                    text: n,
+                    selected: false
+                }
+            });
+            console.log('select2 creation');
+            $('.node-selector').select2({
+                placeholder: 'Search node',
+                theme: 'bootstrap4',
+                data: select_data
+            });
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
@@ -88,12 +104,20 @@ const edgeReducer = (edge, data) => {
     return data;
 };
 
-// setup data path
-if (process.env.NODE_ENV !== 'production') {
-      console.log('Looks like we are in development mode!');
- } else {
-    base_url = process.env.BASE_URL;
-}
+const drawCustomLabel = (context, data, settings) => {
+    const size = settings.labelSize,
+        font = settings.labelFont,
+        weight = settings.labelWeight;
+
+    context.fillStyle = '#333';
+    context.font = `${weight} ${size}px ${font}`;
+
+    context.fillText(
+        data.label,
+        data.x + data.size + 3,
+        data.y + size / 3
+    );
+};
 
 // data file
 const dataFiles = [{'label':'reddit', 'file':'graph_reddit_t2_md2_graph.json.gz', 'escape': true},
@@ -101,6 +125,14 @@ const dataFiles = [{'label':'reddit', 'file':'graph_reddit_t2_md2_graph.json.gz'
     {'label':'gbr', 'file':'zgbr_t2_md6_graph.json.gz', 'escape':false},
     {'label': 'nas', 'file': 'nas_graph.json.gz', 'escape':false},
     {'label':'miz', 'file':'miz_t2_md2.json.gz', 'escape':false}];
+
+// setup data path
+if (process.env.NODE_ENV !== 'production') {
+    console.log('Looks like we are in development mode!');
+ } else {
+    base_url = process.env.BASE_URL;
+}
+
 
 
 // populate dropdown
@@ -130,7 +162,11 @@ $('.dropdown-menu').click((event) => {
     renderGraph(item.data('graph'), item.data('escape'));
 });
 
+$(document).ready(function() {
+    console.log('document ready');
+});
 // load default graph
 $('#reddit').addClass('active');
 renderGraph(dataFiles[0]['file'], dataFiles[0]['escape']);
+
 
