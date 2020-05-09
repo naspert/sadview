@@ -31,12 +31,14 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "@ttskch/select2-bootstrap4-theme": "^1.4.0",
     "bootstrap": "^4.4.1",
     "graphology": "^0.17.1",
     "jquery": "^3.5.0",
     "ky": "^0.19.1",
     "pako": "^1.0.11",
     "popper.js": "^1.16.1",
+    "select2": "^4.0.13",
     "sigma": "^2.0.0-alpha32",
     "webpack": "^4.42.1"
   }

@@ -34,16 +34,20 @@ function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
     if (!graphObj)
         return;
     console.log('Loaded ', inputGraphFile);
-    console.time('Counting communities');
+    console.time('Counting communities / max weight');
     const numCommunities = graphObj.nodes()
         .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'community')), 0) + 1;
+    const maxWeight = graphObj.edges()
+        .reduce((acc, curr) => Math.max(acc, graphObj.getEdgeAttribute(curr, 'weight')), 0);
     const PALETTE = palette('mpn65', Math.max(8, numCommunities)).map(function (colorStr) {
         return '#' + colorStr;
     });
-    graphObj.setAttribute('num communities', numCommunities)
-    console.timeEnd('Counting communities');
+    graphObj.setAttribute('num communities', numCommunities);
+    graphObj.setAttribute('max weight', maxWeight);
+    console.timeEnd('Counting communities / max weight');
 
-    console.log("found " + numCommunities + " communities");
+    console.log('found ' + numCommunities + ' communities');
+    console.log('Max weight = ' + maxWeight );
     console.time('Degree computation');
     degree.assign(graphObj);
     console.timeEnd('Degree computation');
@@ -68,8 +72,11 @@ function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
 
     console.time('Edge Attributes');
     graphObj.edges().forEach(edge => {
+        const attr = graphObj.getEdgeAttributes(edge);
+        const edgeAlpha = Number((20 + 235*attr['weight']/maxWeight).toFixed(0)).toString(16);
         graphObj.mergeEdgeAttributes(edge, {
-            'color': '#ccc',
+            color: `#cccccc${edgeAlpha}`,
+            size: (attr['weight']*10/maxWeight + 1).toFixed(0),
             zIndex: 0
         });
     });
