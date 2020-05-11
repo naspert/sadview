@@ -67,6 +67,7 @@ function renderGraph(filename, escapeAttr) {
             });
 
 
+
             const select_data = $.map(g.nodes(), function (n) {
                 return {
                     id: n,
@@ -80,6 +81,16 @@ function renderGraph(filename, escapeAttr) {
                 theme: 'bootstrap4',
                 data: select_data
             });
+            $('.node-selector').on('select2:select', e => {
+                const data = e.params.data;
+                const node = data.id;
+                console.log('Node selected: ' + node);
+                highlighedNodes = new Set(g.neighbors(node));
+                highlighedNodes.add(node);
+                highlighedEdges = new Set(g.edges(node));
+
+                renderer.refresh();
+            });
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
@@ -90,6 +101,9 @@ function renderGraph(filename, escapeAttr) {
 let base_url = "";
 let highlighedNodes = new Set();
 let highlighedEdges = new Set();
+
+
+
 const nodeReducer = (node, data) => {
     if (highlighedNodes.has(node))
         return {...data, color: '#f00', zIndex: 1};
@@ -162,9 +176,8 @@ $('.dropdown-menu').click((event) => {
     renderGraph(item.data('graph'), item.data('escape'));
 });
 
-$(document).ready(function() {
-    console.log('document ready');
-});
+
+
 // load default graph
 $('#reddit').addClass('active');
 renderGraph(dataFiles[0]['file'], dataFiles[0]['escape']);
