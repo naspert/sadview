@@ -15,6 +15,16 @@ function formatAttributes(attr_data, attr_func) {
     return `<h2>${name}</h2><p>${user_details}</p>`;
 }
 
+function highlightNode(e, graph, renderer) {
+    const data = e.params.data;
+    const node = data.id;
+    console.log('Node selected: ' + node);
+    highlighedNodes = new Set(graph.neighbors(node));
+    highlighedNodes.add(node);
+    highlighedEdges = new Set(graph.edges(node));
+
+    renderer.refresh();
+}
 
 
 function renderGraph(filename, escapeAttr) {
@@ -76,21 +86,16 @@ function renderGraph(filename, escapeAttr) {
                 }
             });
             console.log('select2 creation');
-            $('.node-selector').select2({
+            const nodeSelect2 = $('.node-selector');
+            nodeSelect2.empty();
+            nodeSelect2.select2({
                 placeholder: 'Search node',
                 theme: 'bootstrap4',
                 data: select_data
             });
-            $('.node-selector').on('select2:select', e => {
-                const data = e.params.data;
-                const node = data.id;
-                console.log('Node selected: ' + node);
-                highlighedNodes = new Set(g.neighbors(node));
-                highlighedNodes.add(node);
-                highlighedEdges = new Set(g.edges(node));
 
-                renderer.refresh();
-            });
+            nodeSelect2.off('select2:select');
+            nodeSelect2.on('select2:select', e => highlightNode(e, g, renderer));
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
