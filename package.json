@@ -9,7 +9,7 @@
     "predeploy": "yarn run build --mode=production",
     "deploy": "gh-pages -b gh-pages -d public -o origin-gh",
     "layout": "node src/layout.js",
-    "postbuild": "node src/layout.js data public 200"
+    "postbuild": "node src/layout.js data public FA2 500"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
@@ -21,7 +21,6 @@
     "gh-pages": "^2.2.0",
     "google-palette": "^1.1.0",
     "graphology-gexf": "^0.5.1",
-    "graphology-layout": "^0.2.0",
     "graphology-layout-forceatlas2": "^0.4.3",
     "random": "^2.2.0",
     "raw-loader": "^4.0.1",
@@ -34,6 +33,7 @@
     "@ttskch/select2-bootstrap4-theme": "^1.4.0",
     "bootstrap": "^4.4.1",
     "graphology": "^0.17.1",
+    "graphology-layout": "https://github.com/naspert/graphology-layout.git#circlepack",
     "jquery": "^3.5.0",
     "ky": "^0.19.1",
     "pako": "^1.0.11",

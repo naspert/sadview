@@ -1807,10 +1807,9 @@ graphology-layout-forceatlas2@^0.4.3:
     graphology-types "^0.16.0"
     graphology-utils "^1.7.0"
 
-graphology-layout@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/graphology-layout/-/graphology-layout-0.2.0.tgz#c26d974b3ee0845a7121543a604326166b778195"
-  integrity sha512-wrdUYQGs3P4L4f/VLYe4OkDSookWyrCOFGYM1ZWug99kgagYBFhfo/cZyiook153siMQaKmuuEH+iauZEy+GbQ==
+"graphology-layout@https://github.com/naspert/graphology-layout.git#circlepack":
+  version "0.2.1"
+  resolved "https://github.com/naspert/graphology-layout.git#8f6311e6a04293e08887add6315906251115838f"
   dependencies:
     graphology-types "^0.15.3"
     graphology-utils "^1.6.0"

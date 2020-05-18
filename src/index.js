@@ -1,5 +1,6 @@
 import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
+import circlepack from "graphology-layout/circlepack";
 import ky from 'ky';
 import pako from 'pako';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -76,8 +77,6 @@ function renderGraph(filename, escapeAttr) {
                     escapeAttr ? x => JSON.parse(x): x => x);
             });
 
-
-
             const select_data = $.map(g.nodes(), function (n) {
                 return {
                     id: n,
@@ -106,7 +105,8 @@ function renderGraph(filename, escapeAttr) {
 let base_url = "";
 let highlighedNodes = new Set();
 let highlighedEdges = new Set();
-
+let loadedFile;
+let escapeNeeded;
 
 
 const nodeReducer = (node, data) => {
@@ -178,13 +178,29 @@ $('.dropdown-menu').click((event) => {
     });
     const item = $('#' + menu_clicked.data('label'));
     item.addClass('active');
-    renderGraph(item.data('graph'), item.data('escape'));
+    loadedFile = item.data('graph');
+    escapeNeeded = item.data('escape');
+    renderGraph(loadedFile, escapeNeeded);
+    $('#fa2').parent().addClass('active');
+    $('#circlepack').parent().removeClass('active');
+});
+
+$('#fa2').change((event) => {
+   console.log('FA2 layout -> reload');
+   renderGraph(loadedFile, escapeNeeded);
+});
+
+$('#circlepack').change((event) => {
+    console.log('Circlepack layout');
+    circlepack.assign(window.graph, { hierarchyAttributes: ['community', 'degree']});
 });
 
 
 
 // load default graph
 $('#reddit').addClass('active');
-renderGraph(dataFiles[0]['file'], dataFiles[0]['escape']);
+loadedFile = dataFiles[0]['file'];
+escapeNeeded = dataFiles[0]['escape']
+renderGraph(loadedFile, escapeNeeded);
 
 

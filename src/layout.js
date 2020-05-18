@@ -3,14 +3,16 @@ const graph = require('graphology');
 const gexf = require('graphology-gexf');
 const degree = require('graphology-metrics/degree');
 const randomLayout = require('graphology-layout/random');
-const FA2Layout = require('graphology-layout-forceatlas2');
+const circlePackLayout = require('graphology-layout/circlepack');
+const forceAtlas2 = require('graphology-layout-forceatlas2');
 const palette = require('google-palette');
-const random = require('random');
 const seedrandom = require('seedrandom');
 const pako = require('pako');
 const path = require('path');
 
-
+function rng() {
+    return seedrandom('lts2kings');
+}
 
 function loadGraphFile(filename) {
     if (!filename.endsWith('gexf.gz')) {
@@ -22,14 +24,25 @@ function loadGraphFile(filename) {
     return graph.from(gexf.parse(graph, str));
 }
 
-function checkLayout(g) {
-    g.forEachNode((node, attributes) => {
-        if (isNaN(attributes.x) || isNaN(attributes.y))
-            console.log(node, attributes);
-    });
+
+function computeCirclePackLayout(graphObj, hierarchyAttributes) {
+    circlePackLayout.assign(graphObj, { hierarchyAttributes: hierarchyAttributes});
 }
 
-function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
+function computeFa2Layout(graphObj, numIter) {
+
+    forceAtlas2.assign(graphObj, {
+        iterations: numIter,
+        settings: {
+            edgeWeightInfluence: 0.2,
+            barnesHutOptimize: true,
+            linLogMode: true,
+        }
+    });
+
+}
+
+function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
     const graphObj = loadGraphFile(inputGraphFile);
     if (!graphObj)
         return;
@@ -51,11 +64,9 @@ function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
     console.time('Degree computation');
     degree.assign(graphObj);
     console.timeEnd('Degree computation');
-    random.use(seedrandom('lts2kings'));
+
     randomLayout.assign(graphObj, {
-        scale: 400, center: 0, rng: () => {
-            return random.float();
-        }
+        scale: 400, center: 0, rng: rng()
     });
     console.time('Node Attributes');
     graphObj.nodes().forEach(node => {
@@ -64,7 +75,7 @@ function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
         graphObj.mergeNodeAttributes(node, {
             color: PALETTE[attr.community],
             //size: Math.max(4, attr.degree*0.5)
-            size: Math.max(4, 2.5 * Math.log(attr.degree + 1)),
+            size: Math.max(4, 2.0 * Math.log(attr.degree + 1)),
             zIndex: 0
         });
     });
@@ -81,10 +92,18 @@ function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
         });
     });
     console.timeEnd('Edge Attributes');
-
     console.time('Layout');
-    FA2Layout.assign(graphObj, num_iter, {});
-    checkLayout(graphObj);
+    switch(methodName) {
+        case 'FA2':
+            computeFa2Layout(graphObj, numIter);
+            break;
+        case 'CP':
+            // TODO pass hierarchy from command line (?)
+            computeCirclePackLayout(graphObj, ['community', 'degree']);
+            break;
+        default:
+            throw new Error("Unrecognized layout method");
+    }
     console.timeEnd('Layout');
     console.time('Output');
     const graphStr = JSON.stringify(graphObj.export());
@@ -94,13 +113,13 @@ function computeFa2Layout(inputGraphFile, outputGraphFile, num_iter) {
     console.log('Saved ', outputGraphFile);
 }
 
-if (!process.argv[2] || !process.argv[3]) {
-    console.log('Usage: layout input_dir output_dir num_iter');
+if (!process.argv[2] || !process.argv[3] || !process.argv[4]) {
+    console.log('Usage: layout input_dir output_dir method (FA2|CP) [num_iter]');
 } else {
-    const numIter = process.argv[4] ? parseInt(process.argv[4]):200;
+    const numIter = process.argv[5] ? parseInt(process.argv[5]):200;
     const files = fs.readdirSync(process.argv[2]); // list files in input dir
     files.forEach(f => {
         const fout = f.replace('gexf.gz', 'json.gz');
-        computeFa2Layout(path.join(process.argv[2], f), path.join(process.argv[3], fout), numIter)
+        computeLayout(path.join(process.argv[2], f), path.join(process.argv[3], fout), process.argv[4], numIter);
     });
 }
