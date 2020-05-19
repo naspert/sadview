@@ -1808,12 +1808,13 @@ graphology-layout-forceatlas2@^0.4.3:
     graphology-utils "^1.7.0"
 
 "graphology-layout@https://github.com/naspert/graphology-layout.git#circlepack":
-  version "0.2.1"
-  resolved "https://github.com/naspert/graphology-layout.git#8f6311e6a04293e08887add6315906251115838f"
+  version "0.3.0"
+  resolved "https://github.com/naspert/graphology-layout.git#345f6c9c980cbe4e983c78f50e2b51476cd0c49e"
   dependencies:
     graphology-types "^0.15.3"
     graphology-utils "^1.6.0"
     lodash "^4.17.15"
+    pandemonium "^1.5.0"
 
 graphology-metrics@1.6.1:
   version "1.6.1"
@@ -3073,6 +3074,11 @@ pako@^1.0.11, pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
+
+pandemonium@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/pandemonium/-/pandemonium-1.5.0.tgz#93f35af555de1420022b341e730215c51c725be3"
+  integrity sha512-9PU9fy93rJhZHLMjX+4M1RwZPEYl6g7DdWKGmGNhkgBZR5+tOBVExNZc00kzdEGMxbaAvWdQy9MqGAScGwYlcA==
 
 parallel-transform@^1.1.0:
   version "1.2.0"

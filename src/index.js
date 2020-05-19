@@ -192,7 +192,7 @@ $('#fa2').change((event) => {
 
 $('#circlepack').change((event) => {
     console.log('Circlepack layout');
-    circlepack.assign(window.graph, { hierarchyAttributes: ['community', 'degree']});
+    circlepack.assign(window.graph, {hierarchyAttributes: ['community', 'degree']});
 });
 
 
