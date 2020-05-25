@@ -76,6 +76,11 @@ function renderGraph(filename, escapeAttr) {
                 infodisp[0].innerHTML = formatAttributes(attr,
                     escapeAttr ? x => JSON.parse(x): x => x);
             });
+            // cache fa2 coords, as recomputing/reloading is expensive
+            savedCoords = {};
+            g.forEachNode(function (key, attr) {
+               savedCoords[key] = {x: attr.x, y: attr.y};
+            });
 
             const select_data = $.map(g.nodes(), function (n) {
                 return {
@@ -107,7 +112,7 @@ let highlighedNodes = new Set();
 let highlighedEdges = new Set();
 let loadedFile;
 let escapeNeeded;
-
+let savedCoords = {};
 
 const nodeReducer = (node, data) => {
     if (highlighedNodes.has(node))
@@ -186,8 +191,11 @@ $('.dropdown-menu').click((event) => {
 });
 
 $('#fa2').change((event) => {
-   console.log('FA2 layout -> reload');
-   renderGraph(loadedFile, escapeNeeded);
+   console.log('FA2 layout -> reload coords');
+   window.graph.forEachNode(function(key, attr) {
+       window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
+       window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
+   });
 });
 
 $('#circlepack').change((event) => {
