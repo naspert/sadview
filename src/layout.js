@@ -14,6 +14,19 @@ function rng() {
     return seedrandom('lts2kings');
 }
 
+function buildHashTagList(graphObj) {
+    let htags = new Set();
+    graphObj.forEachNode(node => {
+        const attr = graphObj.getNodeAttributes(node);
+
+        const nodeHashTags = JSON.parse(attr['all_hashtags'] || '[]').map(p => p[0]);
+        for (var t in nodeHashTags)
+            htags.add(nodeHashTags[t]);
+
+    });
+    graphObj.setAttribute('hashtags', Array.from(htags));
+}
+
 function loadGraphFile(filename) {
     if (!filename.endsWith('gexf.gz')) {
         console.log('Unknown file type for ',filename, ' -> skipping');
@@ -64,7 +77,7 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
     console.time('Degree computation');
     degree.assign(graphObj);
     console.timeEnd('Degree computation');
-
+    buildHashTagList(graphObj);
     randomLayout.assign(graphObj, {
         scale: 400, center: 0, rng: rng()
     });

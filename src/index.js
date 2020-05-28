@@ -48,17 +48,27 @@ function plotHashtags(htListJson) {
 
 function highlightNode(node, graph, renderer) {
     console.log('Node selected: ' + node);
-    highlighedNodes = new Set(graph.neighbors(node));
-    highlighedNodes.add(node);
-    highlighedEdges = new Set(graph.edges(node));
+    highlightedNodes = new Set(graph.neighbors(node));
+    highlightedNodes.add(node);
+    highlightedEdges = new Set(graph.edges(node));
 
+    renderer.refresh();
+}
+
+function highlightNodes(graph, hashtag, rendered) {
+    hightlightedHashtagNode.clear(); // flush on new hashtag select
+    graph.forEachNode(n => {
+        const nodeHashtags = graph.getNodeAttribute(n, 'all_hashtags');
+        if (nodeHashtags.includes(hashtag))
+            hightlightedHashtagNode.add(n);
+    });
     renderer.refresh();
 }
 
 function displayNodeInfo(node, attr, escapeAttr, infodisp) {
     infodisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
-    plotHashtags(attr['all_hashtags']);
+    plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
 }
 
 function renderGraph(filename, escapeAttr) {
@@ -88,9 +98,9 @@ function renderGraph(filename, escapeAttr) {
 
             renderer.on('enterNode', ({node}) => {
                 console.log('Entering: ', node);
-                highlighedNodes = new Set(g.neighbors(node));
-                highlighedNodes.add(node);
-                highlighedEdges = new Set(g.edges(node));
+                highlightedNodes = new Set(g.neighbors(node));
+                highlightedNodes.add(node);
+                highlightedEdges = new Set(g.edges(node));
 
                 renderer.refresh();
             });
@@ -98,8 +108,8 @@ function renderGraph(filename, escapeAttr) {
             renderer.on('leaveNode', ({node}) => {
                 console.log('Leaving:', node);
 
-                highlighedNodes.clear();
-                highlighedEdges.clear();
+                highlightedNodes.clear();
+                highlightedEdges.clear();
 
                 renderer.refresh();
             });
@@ -116,20 +126,20 @@ function renderGraph(filename, escapeAttr) {
                savedCoords[key] = {x: attr.x, y: attr.y};
             });
 
-            const select_data = $.map(g.nodes(), function (n) {
+            const nodeSelectData = [{id:'', text:''}].concat($.map(g.nodes(), function (n) {
                 return {
                     id: n,
                     text: n,
                     selected: false
                 }
-            });
+            }));
             console.log('select2 creation');
             const nodeSelect2 = $('.node-selector');
             nodeSelect2.empty();
             nodeSelect2.select2({
                 placeholder: 'Search node',
                 theme: 'bootstrap4',
-                data: select_data
+                data: nodeSelectData
             });
 
             nodeSelect2.off('select2:select');
@@ -137,6 +147,27 @@ function renderGraph(filename, escapeAttr) {
                 const node = e.params.data.id;
                 highlightNode(node, g, renderer);
                 displayNodeInfo(node, g.getNodeAttributes(node), escapeAttr, infodisp);
+            });
+
+            const hashtagList = g.getAttribute('hashtags');
+            const hashtagSelectData = [{id:'', text:''}].concat($.map(hashtagList, function (h) {
+                return {
+                    id: h,
+                    text: h,
+                    selected: false
+                }
+            }));
+            const hashtagSelect = $('.hashtag-selector');
+            hashtagSelect.empty();
+            hashtagSelect.select2({
+                placeholder: 'Search hashtag',
+                theme: 'bootstrap4',
+                data: hashtagSelectData
+            });
+            hashtagSelect.off('select2:select');
+            hashtagSelect.on('select2:select', e => {
+                const htag = e.params.data.id;
+                highlightNodes(g, htag, renderer);
             });
             window.graph = g;
             window.renderer = renderer;
@@ -146,21 +177,23 @@ function renderGraph(filename, escapeAttr) {
 }
 
 let base_url = "";
-let highlighedNodes = new Set();
-let highlighedEdges = new Set();
+let highlightedNodes = new Set();
+let highlightedEdges = new Set();
+let hightlightedHashtagNode = new Set();
 let loadedFile;
 let escapeNeeded;
 let savedCoords = {};
 
 const nodeReducer = (node, data) => {
-    if (highlighedNodes.has(node))
+    if (highlightedNodes.has(node))
         return {...data, color: '#f00', zIndex: 1};
-
+    if (hightlightedHashtagNode.has(node))
+        return {...data, color: '#0f0', zIndex: 1};
     return data;
 };
 
 const edgeReducer = (edge, data) => {
-    if (highlighedEdges.has(edge))
+    if (highlightedEdges.has(edge))
         return {...data, color: '#ff0000', zIndex: 1};
 
     return data;
