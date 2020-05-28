@@ -1807,12 +1807,13 @@ graphology-layout-forceatlas2@^0.4.3:
     graphology-types "^0.16.0"
     graphology-utils "^1.7.0"
 
-"graphology-layout@https://github.com/naspert/graphology-layout.git#circlepack":
+graphology-layout@^0.3.0:
   version "0.3.0"
-  resolved "https://github.com/naspert/graphology-layout.git#345f6c9c980cbe4e983c78f50e2b51476cd0c49e"
+  resolved "https://registry.yarnpkg.com/graphology-layout/-/graphology-layout-0.3.0.tgz#5464faaedc11881a8bc009853b7c28c2b2a6e205"
+  integrity sha512-o+zA2G0SedqfKoYoMF8b+UViuAvblYNYX0Ci3oG3SSi2JzTXUJMYpFJOU9AQ2Zd2C+aiG7bYexkH8MWS/VWCVg==
   dependencies:
-    graphology-types "^0.15.3"
-    graphology-utils "^1.6.0"
+    graphology-types "^0.16.0"
+    graphology-utils "^1.7.0"
     lodash "^4.17.15"
     pandemonium "^1.5.0"
 
@@ -1836,7 +1837,7 @@ graphology-shortest-path@^1.0.1:
     graphology-utils "^1.7.0"
     mnemonist "^0.33.1"
 
-graphology-types@^0.15.1, graphology-types@^0.15.3:
+graphology-types@^0.15.1:
   version "0.15.5"
   resolved "https://registry.yarnpkg.com/graphology-types/-/graphology-types-0.15.5.tgz#d6b3618f974c8f882b0a779f7ec68a2f1106c2d2"
   integrity sha512-2NONgcQ0KmzMoiLAOkk4AkyhrQsA4dfJKyGOMYUfz2sNBAR/VK3oPcalCg3ID7zDd4XSqE3rMtEt+G3KcUaLew==
@@ -1846,7 +1847,7 @@ graphology-types@^0.16.0:
   resolved "https://registry.yarnpkg.com/graphology-types/-/graphology-types-0.16.0.tgz#37896c4c82117a247c97a16219629215f1a596b4"
   integrity sha512-iBGyPuMHlmHdXaB0cu/vllkPJ3myf063ZICY90zDxYQrJYZ3Dm4h2+dLM3Kof+CVJzM4HGg96ZFZ8HS6C7LgCQ==
 
-graphology-utils@^1.3.1, graphology-utils@^1.4.0, graphology-utils@^1.5.0, graphology-utils@^1.6.0, graphology-utils@^1.7.0:
+graphology-utils@^1.3.1, graphology-utils@^1.4.0, graphology-utils@^1.5.0, graphology-utils@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/graphology-utils/-/graphology-utils-1.7.0.tgz#0541855ffd0e5c011fd2b9f961b769bac23845b6"
   integrity sha512-g94E5O1FTws4E81AVKnCmxinDN1KRO7Zpysqd/j7Xjy2Qjs7DOnB3XHZUaS/Yk6D74LorBp7NJY5685IEkAh6g==
@@ -3214,6 +3215,11 @@ pkg-dir@^4.1.0:
   integrity sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   dependencies:
     find-up "^4.0.0"
+
+plotly.js-basic-dist@^1.54.1:
+  version "1.54.1"
+  resolved "https://registry.yarnpkg.com/plotly.js-basic-dist/-/plotly.js-basic-dist-1.54.1.tgz#845762c620ebea2b951c710e9a4da62a5217115b"
+  integrity sha512-GeWbQh5NASsmgCiAorC7rKDfQH3bj+v1A39+r/mdxC2oKVqg1DEpzmBMyqHLmoj3MdQo3M0Jsri0cCVzsUMFxw==
 
 popper.js@^1.16.1:
   version "1.16.1"

@@ -3,6 +3,7 @@ import WebGLRenderer from 'sigma/renderers/webgl';
 import circlepack from "graphology-layout/circlepack";
 import ky from 'ky';
 import pako from 'pako';
+import plotly from 'plotly.js-basic-dist';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import 'select2';
@@ -14,6 +15,35 @@ function formatAttributes(attr_data, attr_func) {
     const user_details = attr_func(attr_data['user_details']);
     const name = attr_func(attr_data['name']);
     return `<h2>${name}</h2><p>${user_details}</p>`;
+}
+
+function plotHashtags(htListJson) {
+    // get sorted hashtags list with most used first
+    const hashtags = JSON.parse(htListJson).map((p) => {
+        return {name:p[0], num:p[1]};
+    }).sort(function(a,b) {return b.num - a.num});
+    const x = hashtags.map(t => t.name);
+    const y = hashtags.map(t => t.num);
+    const data = [
+        {
+            x: x,
+            y: y,
+            type: 'bar',
+        }
+    ];
+
+    const layout = {
+        autosize: false,
+        height: 200,
+        margin: {
+            l: 50,
+            r: 5,
+            b: 100,
+            t: 10,
+            pad: 4
+        }
+    };
+    plotly.newPlot('hashtag-disp', data, layout);
 }
 
 function highlightNode(e, graph, renderer) {
@@ -29,7 +59,9 @@ function highlightNode(e, graph, renderer) {
 
 
 function renderGraph(filename, escapeAttr) {
-
+    const infodisp = $('#info-disp');
+    infodisp.empty();
+    $('#hashtag-disp').empty();
     console.log('Rendering ' + filename);
     if (window.graph)
         window.graph.clear();
@@ -42,7 +74,7 @@ function renderGraph(filename, escapeAttr) {
         })
         .then(graph_data => {
             const container = $('#sigma-container');
-            const infodisp = $('#info-disp');
+
             const g = graph.from(graph_data);
             const renderer = new WebGLRenderer(g, container[0], {
                 nodeReducer,
@@ -55,7 +87,6 @@ function renderGraph(filename, escapeAttr) {
                 console.log('Entering: ', node);
                 highlighedNodes = new Set(g.neighbors(node));
                 highlighedNodes.add(node);
-
                 highlighedEdges = new Set(g.edges(node));
 
                 renderer.refresh();
@@ -75,6 +106,7 @@ function renderGraph(filename, escapeAttr) {
                 const attr = g.getNodeAttributes(node);
                 infodisp[0].innerHTML = formatAttributes(attr,
                     escapeAttr ? x => JSON.parse(x): x => x);
+                plotHashtags(attr['all_hashtags']);
             });
             // cache fa2 coords, as recomputing/reloading is expensive
             savedCoords = {};
