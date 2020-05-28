@@ -46,9 +46,7 @@ function plotHashtags(htListJson) {
     plotly.newPlot('hashtag-disp', data, layout);
 }
 
-function highlightNode(e, graph, renderer) {
-    const data = e.params.data;
-    const node = data.id;
+function highlightNode(node, graph, renderer) {
     console.log('Node selected: ' + node);
     highlighedNodes = new Set(graph.neighbors(node));
     highlighedNodes.add(node);
@@ -57,6 +55,11 @@ function highlightNode(e, graph, renderer) {
     renderer.refresh();
 }
 
+function displayNodeInfo(node, attr, escapeAttr, infodisp) {
+    infodisp[0].innerHTML = formatAttributes(attr,
+        escapeAttr ? x => JSON.parse(x): x => x);
+    plotHashtags(attr['all_hashtags']);
+}
 
 function renderGraph(filename, escapeAttr) {
     const infodisp = $('#info-disp');
@@ -104,9 +107,8 @@ function renderGraph(filename, escapeAttr) {
             renderer.on('clickNode', ({node}) => {
                 console.log('Clicking:', node);
                 const attr = g.getNodeAttributes(node);
-                infodisp[0].innerHTML = formatAttributes(attr,
-                    escapeAttr ? x => JSON.parse(x): x => x);
-                plotHashtags(attr['all_hashtags']);
+                displayNodeInfo(node, attr, escapeAttr, infodisp);
+
             });
             // cache fa2 coords, as recomputing/reloading is expensive
             savedCoords = {};
@@ -131,7 +133,11 @@ function renderGraph(filename, escapeAttr) {
             });
 
             nodeSelect2.off('select2:select');
-            nodeSelect2.on('select2:select', e => highlightNode(e, g, renderer));
+            nodeSelect2.on('select2:select', e => {
+                const node = e.params.data.id;
+                highlightNode(node, g, renderer);
+                displayNodeInfo(node, g.getNodeAttributes(node), escapeAttr, infodisp);
+            });
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
