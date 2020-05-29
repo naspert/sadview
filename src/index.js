@@ -3,7 +3,7 @@ import WebGLRenderer from 'sigma/renderers/webgl';
 import circlepack from "graphology-layout/circlepack";
 import ky from 'ky';
 import pako from 'pako';
-import plotly from 'plotly.js-basic-dist';
+import plotly from 'plotly.js-basic-dist-min';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import 'select2';
