@@ -1,12 +1,10 @@
 import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
-import circlepack from "graphology-layout/circlepack";
 import ky from 'ky';
 import pako from 'pako';
-import plotly from 'plotly.js-basic-dist-min';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap';
-import 'select2';
+import 'bootstrap/dist/js/bootstrap.min';
+import 'select2/dist/js/select2.min';
 import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import $ from 'jquery';
@@ -17,34 +15,6 @@ function formatAttributes(attr_data, attr_func) {
     return `<h2>${name}</h2><p>${user_details}</p>`;
 }
 
-function plotHashtags(htListJson) {
-    // get sorted hashtags list with most used first
-    const hashtags = JSON.parse(htListJson).map((p) => {
-        return {name:p[0], num:p[1]};
-    }).sort(function(a,b) {return b.num - a.num});
-    const x = hashtags.map(t => t.name);
-    const y = hashtags.map(t => t.num);
-    const data = [
-        {
-            x: x,
-            y: y,
-            type: 'bar',
-        }
-    ];
-
-    const layout = {
-        autosize: false,
-        height: 200,
-        margin: {
-            l: 50,
-            r: 5,
-            b: 100,
-            t: 10,
-            pad: 4
-        }
-    };
-    plotly.newPlot('hashtag-disp', data, layout);
-}
 
 function highlightNode(node, graph, renderer) {
     console.log('Node selected: ' + node);
@@ -68,7 +38,11 @@ function highlightNodes(graph, hashtag, rendered) {
 function displayNodeInfo(node, attr, escapeAttr, infodisp) {
     infodisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
-    plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+    import(/* webpackChunkName: "plot_hashtags" */ './plot_hashtags').then(module => {
+        const plotHashtags = module.plotHashtags;
+
+        plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+   });
 }
 
 function renderGraph(filename, escapeAttr) {
@@ -271,7 +245,10 @@ $('#fa2').change((event) => {
 
 $('#circlepack').change((event) => {
     console.log('Circlepack layout');
-    circlepack.assign(window.graph, {hierarchyAttributes: ['community', 'degree']});
+    import(/* webpackChunkName: "circlepack" */ './circlepack').then(module => {
+        const layoutCirclepack = module.layout_circlepack;
+        layoutCirclepack(window.graph);
+    });
 });
 
 
