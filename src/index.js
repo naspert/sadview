@@ -47,11 +47,15 @@ function displayNodeInfo(node, attr, escapeAttr, infodisp) {
 
 function renderGraph(filename, escapeAttr) {
     const infodisp = $('#info-disp');
-    infodisp.empty();
+    const spinDisp = $('#spinner-disp');
     $('#hashtag-disp').empty();
+    infodisp.empty();
     console.log('Rendering ' + filename);
     if (window.graph)
         window.graph.clear();
+    // show spinner
+    spinDisp.show();
+
     ky.get(base_url + '/' + filename)
         .then(res => res.arrayBuffer())
         .then(ab => pako.inflate(ab, {to:'string'}))
@@ -61,7 +65,6 @@ function renderGraph(filename, escapeAttr) {
         })
         .then(graph_data => {
             const container = $('#sigma-container');
-
             const g = graph.from(graph_data);
             const renderer = new WebGLRenderer(g, container[0], {
                 nodeReducer,
@@ -146,7 +149,7 @@ function renderGraph(filename, escapeAttr) {
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
-
+            spinDisp.hide();
     });
 }
 
@@ -157,6 +160,7 @@ let hightlightedHashtagNode = new Set();
 let loadedFile;
 let escapeNeeded;
 let savedCoords = {};
+
 
 const nodeReducer = (node, data) => {
     if (highlightedNodes.has(node))
