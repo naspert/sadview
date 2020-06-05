@@ -97,6 +97,8 @@ function renderGraph(filename, escapeAttr) {
                 displayNodeInfo(node, attr, escapeAttr, infodisp);
 
             });
+
+
             // cache fa2 coords, as recomputing/reloading is expensive
             savedCoords = {};
             g.forEachNode(function (key, attr) {
@@ -195,9 +197,9 @@ const drawCustomLabel = (context, data, settings) => {
 // data file
 const dataFiles = [{'label':'reddit', 'file':'graph_reddit_t2_md2_graph.json.gz', 'escape': true},
     {'label':'voat', 'file':'voat_t2_md2_graph.json.gz', 'escape': false},
-    {'label':'gbr', 'file':'zgbr_t2_md6_graph.json.gz', 'escape':false},
-    {'label': 'nas', 'file': 'nas_graph.json.gz', 'escape':false},
-    {'label':'miz', 'file':'miz_t2_md2.json.gz', 'escape':false}];
+    {'label':'chloro', 'file':'Chloroquine_t1_md2_graph.json.gz', 'escape':false},
+    {'label': 'chloro25', 'file': 'Chloroquine25_t1_md2_graph.json.gz', 'escape':false},
+    {'label':'chloro30', 'file':'Chloroquine30_t1_md2_graph.json.gz', 'escape':false}];
 
 // setup data path
 if (process.env.NODE_ENV !== 'production') {

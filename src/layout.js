@@ -1,5 +1,6 @@
 const fs = require('fs');
 const graph = require('graphology');
+const DirectedGraph = require('graphology').DirectedGraph;
 const gexf = require('graphology-gexf');
 const degree = require('graphology-metrics/degree');
 const randomLayout = require('graphology-layout/random');
@@ -34,7 +35,8 @@ function loadGraphFile(filename) {
     }
     const data = fs.readFileSync(filename);
     const str = pako.inflate(data, {to:'string'});
-    return graph.from(gexf.parse(graph, str));
+
+    return new DirectedGraph.from(gexf.parse(graph, str));
 }
 
 
@@ -75,14 +77,21 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
     console.log('found ' + numCommunities + ' communities');
     console.log('Max weight = ' + maxWeight );
     console.time('Degree computation');
-    degree.assign(graphObj);
+
+    degree.allDegree(graphObj, {types: ['inDegree', 'outDegree']}, true);
+    graphObj.forEachNode(node => {
+        const attr = graphObj.getNodeAttributes(node);
+        graphObj.mergeNodeAttributes(node, {
+           degree: attr.inDegree + attr.outDegree
+        });
+    });
     console.timeEnd('Degree computation');
     buildHashTagList(graphObj);
     randomLayout.assign(graphObj, {
         scale: 400, center: 0, rng: rng()
     });
     console.time('Node Attributes');
-    graphObj.nodes().forEach(node => {
+    graphObj.forEachNode(node => {
         const attr = graphObj.getNodeAttributes(node);
 
         graphObj.mergeNodeAttributes(node, {
