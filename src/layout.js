@@ -11,6 +11,10 @@ const seedrandom = require('seedrandom');
 const pako = require('pako');
 const path = require('path');
 
+const MIN_PALETTE_SIZE = 8;
+const MAX_PALETTE_SIZE = 65;
+
+
 function rng() {
     return seedrandom('lts2kings');
 }
@@ -67,7 +71,7 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
         .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'community')), 0) + 1;
     const maxWeight = graphObj.edges()
         .reduce((acc, curr) => Math.max(acc, graphObj.getEdgeAttribute(curr, 'weight')), 0);
-    const PALETTE = palette('mpn65', Math.max(8, numCommunities)).map(function (colorStr) {
+    const PALETTE = palette('mpn65', Math.min(Math.max(MIN_PALETTE_SIZE, numCommunities), MAX_PALETTE_SIZE)).map(function (colorStr) {
         return '#' + colorStr;
     });
     graphObj.setAttribute('num communities', numCommunities);
@@ -95,7 +99,7 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
         const attr = graphObj.getNodeAttributes(node);
 
         graphObj.mergeNodeAttributes(node, {
-            color: PALETTE[attr.community],
+            color: PALETTE[attr.community % MAX_PALETTE_SIZE],
             //size: Math.max(4, attr.degree*0.5)
             size: Math.max(4, 2.0 * Math.log(attr.degree + 1)),
             zIndex: 0
