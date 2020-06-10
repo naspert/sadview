@@ -13,6 +13,8 @@ const path = require('path');
 
 const MIN_PALETTE_SIZE = 8;
 const MAX_PALETTE_SIZE = 65;
+const MIN_NODE_SIZE = 5;
+const MAX_NODE_SIZE = 30;
 
 
 function rng() {
@@ -71,9 +73,8 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
         .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'community')), 0) + 1;
     const maxWeight = graphObj.edges()
         .reduce((acc, curr) => Math.max(acc, graphObj.getEdgeAttribute(curr, 'weight')), 0);
-    const PALETTE = palette('mpn65', Math.min(Math.max(MIN_PALETTE_SIZE, numCommunities), MAX_PALETTE_SIZE)).map(function (colorStr) {
-        return '#' + colorStr;
-    });
+    const PALETTE = palette('mpn65', Math.min(Math.max(MIN_PALETTE_SIZE, numCommunities), MAX_PALETTE_SIZE))
+                            .map(function (colorStr) { return '#' + colorStr; });
     graphObj.setAttribute('num communities', numCommunities);
     graphObj.setAttribute('max weight', maxWeight);
     console.timeEnd('Counting communities / max weight');
@@ -89,8 +90,15 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
            degree: attr.inDegree + attr.outDegree
         });
     });
+    const maxDegree = graphObj.nodes()
+        .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'degree')), 0);
+    graphObj.setAttribute('maxDegree', maxDegree);
     console.timeEnd('Degree computation');
+
+    console.time('Hashtag list');
     buildHashTagList(graphObj);
+    console.timeEnd('Hashtag list');
+
     randomLayout.assign(graphObj, {
         scale: 400, center: 0, rng: rng()
     });
@@ -100,8 +108,8 @@ function computeLayout(inputGraphFile, outputGraphFile, methodName, numIter) {
 
         graphObj.mergeNodeAttributes(node, {
             color: PALETTE[attr.community % MAX_PALETTE_SIZE],
-            //size: Math.max(4, attr.degree*0.5)
-            size: Math.max(4, 2.0 * Math.log(attr.degree + 1)),
+            //size: Math.max(4, 2.0 * Math.log(attr.degree + 1)),
+            size: MIN_NODE_SIZE + (attr.degree*(MAX_NODE_SIZE - MIN_NODE_SIZE))/maxDegree,
             zIndex: 0
         });
     });

@@ -41,29 +41,49 @@
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <div class="col-4">
-            Layout:
-            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-secondary active">
-                    <input type="radio" name="options" id="fa2" autocomplete="off" checked> Force Atlas2
-                </label>
-                <label class="btn btn-secondary">
-                    <input type="radio" name="options" id="circlepack" autocomplete="off"> Circle Pack
-                </label>
+        <div id="layout-controls" class="col-10">
+            <div class="row">
+                <div class="col-3">
+                    Layout:
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                            <input type="radio" name="options" id="fa2" autocomplete="off" checked> Force Atlas2
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="circlepack" autocomplete="off"> Circle Pack
+                        </label>
+                    </div>
+                </div>
+                <div class="col-4">
+                    User: <select class="node-selector" style="width: 100%">
+                    <option></option>
+                </select>
+                    Hashtag: <select class="hashtag-selector" style="width: 100%">
+                    <option></option>
+                </select>
+                </div>
+                <div class="col-3">
+                    Node size:
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                            <input type="radio" name="options" id="degree" autocomplete="off" checked> Degree
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="indegree" autocomplete="off"> In-degree
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="outdegree" autocomplete="off"> Out-degree
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-4">
-            User: <select class="node-selector" style="width: 100%">
-                <option></option>
-            </select>
-            Hashtag: <select class="hashtag-selector" style="width: 100%">
-                <option></option>
-            </select>
-        </div>
+    </div>
+    <div class="row">
         <div id="info-disp" class="col-4">
         </div>
         <div id="hashtag-disp" class="col-8"></div>
-        <hr />
+        <hr/>
     </div>
     <div class="row h-100">
         <div id="sigma-container" class="w-100 h-100">

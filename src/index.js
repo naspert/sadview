@@ -25,7 +25,7 @@ function highlightNode(node, graph, renderer) {
     renderer.refresh();
 }
 
-function highlightNodes(graph, hashtag, rendered) {
+function highlightNodes(graph, hashtag, renderer) {
     hightlightedHashtagNode.clear(); // flush on new hashtag select
     graph.forEachNode(n => {
         const nodeHashtags = graph.getNodeAttribute(n, 'all_hashtags');
@@ -45,16 +45,37 @@ function displayNodeInfo(node, attr, escapeAttr, infodisp) {
    });
 }
 
+function computeNodesSize(graph, attrName) {
+    const MIN_NODE_SIZE = 3;
+    const MAX_NODE_SIZE = 30;
+    const maxDegree = graph.getAttribute('maxDegree');
+    graph.forEachNode((node) => {
+        const degree = graph.getNodeAttribute(node, attrName);
+        const size = MIN_NODE_SIZE + (MAX_NODE_SIZE - MIN_NODE_SIZE)*degree/maxDegree;
+        graph.setNodeAttribute(node, 'size', size);
+    });
+}
+
+function circlePackLayout(graphObj) {
+    import(/* webpackChunkName: "circlepack" */ './circlepack').then(module => {
+        const layoutCirclepack = module.layout_circlepack;
+        layoutCirclepack(graphObj);
+    });
+}
+
 function renderGraph(filename, escapeAttr) {
     const infodisp = $('#info-disp');
     const spinDisp = $('#spinner-disp');
+    const layoutControls = $('#layout-controls');
     $('#hashtag-disp').empty();
     infodisp.empty();
     console.log('Rendering ' + filename);
     if (window.graph)
         window.graph.clear();
     // show spinner
+    layoutControls.hide();
     spinDisp.show();
+
 
     ky.get(base_url + '/' + filename)
         .then(res => res.arrayBuffer())
@@ -95,7 +116,6 @@ function renderGraph(filename, escapeAttr) {
                 console.log('Clicking:', node);
                 const attr = g.getNodeAttributes(node);
                 displayNodeInfo(node, attr, escapeAttr, infodisp);
-
             });
 
 
@@ -152,6 +172,7 @@ function renderGraph(filename, escapeAttr) {
             window.renderer = renderer;
             window.camera = renderer.camera;
             spinDisp.hide();
+            layoutControls.show();
     });
 }
 
@@ -198,7 +219,7 @@ const drawCustomLabel = (context, data, settings) => {
 const dataFiles = [{'label':'reddit', 'file':'graph_reddit_t2_md2_graph.json.gz', 'escape': true},
     {'label':'voat', 'file':'voat_t2_md2_graph.json.gz', 'escape': false},
     {'label':'chloro', 'file':'Chloroquine_t1_md2_graph.json.gz', 'escape':false},
-    {'label': 'chloro25', 'file': 'Chloroquine25_t1_md2_graph.json.gz', 'escape':false},
+    {'label':'chloro25', 'file': 'Chloroquine25_t1_md2_graph.json.gz', 'escape':false},
     {'label':'chloro30', 'file':'Chloroquine30_t1_md2_graph.json.gz', 'escape':false}];
 
 // setup data path
@@ -251,12 +272,32 @@ $('#fa2').change((event) => {
 
 $('#circlepack').change((event) => {
     console.log('Circlepack layout');
-    import(/* webpackChunkName: "circlepack" */ './circlepack').then(module => {
-        const layoutCirclepack = module.layout_circlepack;
-        layoutCirclepack(window.graph);
-    });
+    circlePackLayout(window.graph);
 });
 
+$('#degree').change((event) => {
+    console.log('size <=> degree');
+    computeNodesSize(window.graph, 'degree');
+    if ($('#circlepack').parent().hasClass('active')) {
+        circlePackLayout(window.graph);
+    }
+});
+
+$('#indegree').change((event) => {
+    console.log('size <=> in-degree');
+    computeNodesSize(window.graph, 'inDegree');
+    if ($('#circlepack').parent().hasClass('active')) {
+        circlePackLayout(window.graph);
+    }
+});
+
+$('#outdegree').change((event) => {
+    console.log('size <=> out-degree');
+    computeNodesSize(window.graph, 'outDegree');
+    if ($('#circlepack').parent().hasClass('active')) {
+        circlePackLayout(window.graph);
+    }
+});
 
 
 // load default graph
