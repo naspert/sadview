@@ -34,6 +34,8 @@
   "dependencies": {
     "@ttskch/select2-bootstrap4-theme": "^1.4.0",
     "bootstrap": "^4.4.1",
+    "d3": "^6.1.1",
+    "d3-cloud": "^1.2.5",
     "graphology": "^0.17.1",
     "graphology-layout": "^0.3.0",
     "jquery": "^3.5.0",

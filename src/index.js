@@ -15,6 +15,10 @@ function formatAttributes(attr_data, attr_func) {
     return `<h2>${name}</h2><p>${user_details}</p>`;
 }
 
+function formatCommunityInfo(commInfo,commId) {
+    const density = (commInfo.density*100).toFixed(1);
+    return `<h2>Community ${commId}</h2><p>Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p><p>Density: ${density} %</p>`;
+}
 
 function highlightNode(node, graph, renderer) {
     console.log('Node selected: ' + node);
@@ -35,13 +39,20 @@ function highlightNodes(graph, hashtag, renderer) {
     renderer.refresh();
 }
 
-function displayNodeInfo(node, attr, escapeAttr, infodisp) {
+function displayNodeInfo(node, attr, clusterInfo, escapeAttr, infodisp, clusterInfoDisp) {
     infodisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
+    const community = clusterInfo[attr.community];
+    clusterInfoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
     import(/* webpackChunkName: "plot_hashtags" */ './plot_hashtags').then(module => {
         const plotHashtags = module.plotHashtags;
 
         plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+   });
+   import('./plot_community').then(module => {
+       const plotCommunityWordcloud = module.plotCommunityWordcloud;
+       $('#cluster-lex').empty();
+       plotCommunityWordcloud(community);
    });
 }
 
@@ -63,12 +74,19 @@ function circlePackLayout(graphObj) {
     });
 }
 
-function renderGraph(filename, escapeAttr) {
-    const infodisp = $('#info-disp');
+function renderGraph(filename, clusterFile, escapeAttr) {
+    const infoDisp = $('#info-disp');
     const spinDisp = $('#spinner-disp');
+    const clusterLexDisp = $('#cluster-lex');
+    const clusterInfoDisp = $('#info-cluster');
     const layoutControls = $('#layout-controls');
+    let clusterInfo;
+    $.getJSON(base_url+'/' + clusterFile, function (data) {
+       clusterInfo = data;
+    });
     $('#hashtag-disp').empty();
-    infodisp.empty();
+    infoDisp.empty();
+    clusterLexDisp.empty();
     console.log('Rendering ' + filename);
     if (window.graph)
         window.graph.clear();
@@ -115,7 +133,7 @@ function renderGraph(filename, escapeAttr) {
             renderer.on('clickNode', ({node}) => {
                 console.log('Clicking:', node);
                 const attr = g.getNodeAttributes(node);
-                displayNodeInfo(node, attr, escapeAttr, infodisp);
+                displayNodeInfo(node, attr, clusterInfo, escapeAttr, infoDisp, clusterInfoDisp);
             });
 
 
@@ -145,7 +163,7 @@ function renderGraph(filename, escapeAttr) {
             nodeSelect2.on('select2:select', e => {
                 const node = e.params.data.id;
                 highlightNode(node, g, renderer);
-                displayNodeInfo(node, g.getNodeAttributes(node), escapeAttr, infodisp);
+                displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo, escapeAttr, infoDisp, clusterInfoDisp);
             });
 
             const hashtagList = g.getAttribute('hashtags');
@@ -182,6 +200,7 @@ let highlightedEdges = new Set();
 let hightlightedHashtagNode = new Set();
 let loadedFile;
 let escapeNeeded;
+let clusterFile;
 let savedCoords = {};
 
 
@@ -216,11 +235,12 @@ const drawCustomLabel = (context, data, settings) => {
 };
 
 // data file
-const dataFiles = [{'label':'reddit', 'file':'graph_reddit_t2_md2_graph.json.gz', 'escape': true},
-    {'label':'voat', 'file':'voat_t2_md2_graph.json.gz', 'escape': false},
-    {'label':'chloro', 'file':'Chloroquine_t1_md2_graph.json.gz', 'escape':false},
-    {'label':'chloro25', 'file': 'Chloroquine25_t1_md2_graph.json.gz', 'escape':false},
-    {'label':'chloro30', 'file':'Chloroquine30_t1_md2_graph.json.gz', 'escape':false}];
+const dataDirs = [
+    {label: '2020-09-08', file: '2020-09-08/graph_2020-09-08.json.gz',
+        clusterInfo: '2020-09-08/cluster_info.json', escape: false},
+    {label: '2020-09-09', file: '2020-09-09/graph_2020-09-09.json.gz',
+        clusterInfo: '2020-09-09/cluster_info.json', escape: false}
+    ];
 
 // setup data path
 if (process.env.NODE_ENV !== 'production') {
@@ -234,12 +254,13 @@ if (process.env.NODE_ENV !== 'production') {
 // populate dropdown
 const dropdown = $('#graph-selector');
 dropdown.empty();
-$.each(dataFiles, function(key, value) {
+$.each(dataDirs, function(key, value) {
     dropdown.append($('<a class="dropdown-item"></a>')
         .attr('data-graph', value.file)
         .attr('id', value.label)
         .attr('data-label', value.label)
         .attr('data-escape', value.escape)
+        .attr('data-cluster', value.clusterInfo)
         .text(value.label));
 });
 
@@ -256,8 +277,9 @@ $('.dropdown-menu').click((event) => {
     const item = $('#' + menu_clicked.data('label'));
     item.addClass('active');
     loadedFile = item.data('graph');
+    clusterFile = item.data('cluster');
     escapeNeeded = item.data('escape');
-    renderGraph(loadedFile, escapeNeeded);
+    renderGraph(loadedFile, clusterFile, escapeNeeded);
     $('#fa2').parent().addClass('active');
     $('#circlepack').parent().removeClass('active');
 });
@@ -301,9 +323,10 @@ $('#outdegree').change((event) => {
 
 
 // load default graph
-$('#reddit').addClass('active');
-loadedFile = dataFiles[0]['file'];
-escapeNeeded = dataFiles[0]['escape']
-renderGraph(loadedFile, escapeNeeded);
+$('#2020-09-08').addClass('active');
+loadedFile = dataDirs[0].file;
+clusterFile = dataDirs[0].clusterInfo;
+escapeNeeded = dataDirs[0].escape
+renderGraph(loadedFile, clusterFile, escapeNeeded);
 
 
