@@ -16,14 +16,14 @@ const d3 = Object.assign(
 
 export function plotCommunityWordcloud(commInfo) {
     const words = Object.entries(commInfo.lexical).map((p) => {
-        return {text:p[0], size:5 + 5*p[1]};
+        return {text:p[0], size:Math.round(5 + 20*Math.log(p[1]))};
     }).sort(function(a,b) {return b.size- a.size});
     const margin = {top: 10, right: 10, bottom: 10, left: 10},
-        width = 450 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
-    //const fill = schemeTableau10();
+        width = 650 - margin.left - margin.right,
+        height = 650 - margin.top - margin.bottom;
+
     const fillScale = scaleOrdinal(schemeTableau10);
-    let svg = d3.select("#cluster-lex").append("svg")
+    let svg = d3.select("#info-disp").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -33,7 +33,7 @@ export function plotCommunityWordcloud(commInfo) {
         .size([width, height])
         .words(words)
         .padding(5)
-        //.rotate(function() { return ~~(Math.random() * 2) * 90; })
+        .rotate(function() { return ~~(Math.random() * 2) * 90; })
         .fontSize(d => d.size)
         .on("end", words => {
             svg

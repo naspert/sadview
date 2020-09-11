@@ -39,21 +39,44 @@ function highlightNodes(graph, hashtag, renderer) {
     renderer.refresh();
 }
 
-function displayNodeInfo(node, attr, clusterInfo, escapeAttr, infodisp, clusterInfoDisp) {
-    infodisp[0].innerHTML = formatAttributes(attr,
+
+function displayUserInfo(node, attr, clusterInfo, escapeAttr) {
+    if (node === "")
+        return;
+    const infoDisp = $('#info-disp');
+    infoDisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
-    const community = clusterInfo[attr.community];
-    clusterInfoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
+}
+
+function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
+    if (node === "")
+        return;
     import(/* webpackChunkName: "plot_hashtags" */ './plot_hashtags').then(module => {
         const plotHashtags = module.plotHashtags;
+        const hashTags = attr['all_hashtags'] || '[]';
+        $('#info-disp').empty();
+        if (hashTags.length > 0)
+            plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+    });
+}
 
-        plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
-   });
-   import('./plot_community').then(module => {
-       const plotCommunityWordcloud = module.plotCommunityWordcloud;
-       $('#cluster-lex').empty();
-       plotCommunityWordcloud(community);
-   });
+function displayCommunityInfo(node, attr, clusterInfo, escapeAttr) {
+    if (node === "")
+        return;
+    const infoDisp = $('#info-disp');
+    const community = clusterInfo[attr.community];
+    infoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
+}
+
+function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
+    if (node === "")
+        return;
+    const community = clusterInfo[attr.community];
+    import(/* webpackChunkName: "plot_community" */'./plot_community').then(module => {
+        const plotCommunityWordcloud = module.plotCommunityWordcloud;
+        $('#info-disp').empty();
+        plotCommunityWordcloud(community);
+    });
 }
 
 function computeNodesSize(graph, attrName) {
@@ -77,16 +100,14 @@ function circlePackLayout(graphObj) {
 function renderGraph(filename, clusterFile, escapeAttr) {
     const infoDisp = $('#info-disp');
     const spinDisp = $('#spinner-disp');
-    const clusterLexDisp = $('#cluster-lex');
-    const clusterInfoDisp = $('#info-cluster');
     const layoutControls = $('#layout-controls');
     let clusterInfo;
     $.getJSON(base_url+'/' + clusterFile, function (data) {
        clusterInfo = data;
     });
-    $('#hashtag-disp').empty();
+
     infoDisp.empty();
-    clusterLexDisp.empty();
+    selectedNode = ""
     console.log('Rendering ' + filename);
     if (window.graph)
         window.graph.clear();
@@ -133,7 +154,8 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             renderer.on('clickNode', ({node}) => {
                 console.log('Clicking:', node);
                 const attr = g.getNodeAttributes(node);
-                displayNodeInfo(node, attr, clusterInfo, escapeAttr, infoDisp, clusterInfoDisp);
+                selectedNode = node;
+                displayNodeInfo(node, attr, clusterInfo, escapeAttr);
             });
 
 
@@ -163,7 +185,8 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             nodeSelect2.on('select2:select', e => {
                 const node = e.params.data.id;
                 highlightNode(node, g, renderer);
-                displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo, escapeAttr, infoDisp, clusterInfoDisp);
+                selectedNode = node;
+                displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo, escapeAttr);
             });
 
             const hashtagList = g.getAttribute('hashtags');
@@ -186,6 +209,37 @@ function renderGraph(filename, clusterFile, escapeAttr) {
                 const htag = e.params.data.id;
                 highlightNodes(g, htag, renderer);
             });
+
+            // info button group
+            $('#userinfo').off();
+            $('#userinfo').change((event) => {
+                console.log('Displaying user info');
+                displayNodeInfo = displayUserInfo;
+                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+            });
+
+            $('#userhashtags').off();
+            $('#userhashtags').change((event) => {
+                console.log('Displaying user hashtags');
+                displayNodeInfo = displayUserHashtags;
+                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+            });
+
+            $('#communityinfo').off();
+            $('#communityinfo').change((event) => {
+                console.log('Displaying community info');
+                displayNodeInfo = displayCommunityInfo;
+                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+            });
+
+            $('#communitylex').off();
+            $('#communitylex').change((event) => {
+                console.log('Displaying community lexical analysis');
+                displayNodeInfo = displayCommunityVoc;
+                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+            });
+
+
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
@@ -202,6 +256,8 @@ let loadedFile;
 let escapeNeeded;
 let clusterFile;
 let savedCoords = {};
+let displayNodeInfo = displayUserInfo;
+let selectedNode = "";
 
 
 const nodeReducer = (node, data) => {
@@ -296,6 +352,8 @@ $('#circlepack').change((event) => {
     console.log('Circlepack layout');
     circlePackLayout(window.graph);
 });
+
+// degree display button group
 
 $('#degree').change((event) => {
     console.log('size <=> degree');

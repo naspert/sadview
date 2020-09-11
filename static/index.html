@@ -80,16 +80,26 @@
         </div>
     </div>
     <div class="row">
-        <div id="info-disp" class="col-4">
+        <div class="col-4">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary active">
+                    <input type="radio" name="options" id="userinfo" autocomplete="off" checked> User info
+                </label>
+                <label class="btn btn-secondary">
+                    <input type="radio" name="options" id="userhashtags" autocomplete="off"> User hashtags
+                </label>
+                <label class="btn btn-secondary">
+                    <input type="radio" name="options" id="communityinfo" autocomplete="off"> Community info
+                </label>
+                <label class="btn btn-secondary">
+                    <input type="radio" name="options" id="communitylex" autocomplete="off"> Community lexical analysis
+                </label>
+            </div>
         </div>
-        <div id="hashtag-disp" class="col-8"></div>
-        <hr/>
+        <div class="col-8" id="info-disp">
+        </div>
     </div>
-    <div class="row">
-        <div id="info-cluster" class="col-4"></div>
-        <div id="cluster-lex" class="col-4"></div>
-        <hr/>
-    </div>
+
     <div class="row h-100">
         <div id="sigma-container" class="w-100 h-100">
         </div>
