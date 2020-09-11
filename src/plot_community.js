@@ -23,8 +23,8 @@ export function plotCommunityWordcloud(commInfo) {
         });
     console.log("Community lex has ", Object.keys(words).length, " words");
     const margin = {top: 10, right: 10, bottom: 10, left: 10},
-        width = 650 - margin.left - margin.right,
-        height = 650 - margin.top - margin.bottom;
+        width = 450 - margin.left - margin.right,
+        height = 450 - margin.top - margin.bottom;
 
     const fillScale = scaleOrdinal(schemeTableau10);
     let svg = d3.select("#info-disp").append("svg")
