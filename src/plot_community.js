@@ -15,9 +15,13 @@ const d3 = Object.assign(
 )
 
 export function plotCommunityWordcloud(commInfo) {
-    const words = Object.entries(commInfo.lexical).map((p) => {
-        return {text:p[0], size:Math.round(5 + 20*Math.log(p[1]))};
-    }).sort(function(a,b) {return b.size- a.size});
+    const words = Object.entries(commInfo.lexical)
+        .sort(function(a,b) {return b[1]- a[1]})
+        .slice(0, 50) // take only 50 first words
+        .map((p) => {
+            return {text:p[0], size:Math.round(2 + 10*Math.log(p[1]))};
+        });
+    console.log("Community lex has ", Object.keys(words).length, " words");
     const margin = {top: 10, right: 10, bottom: 10, left: 10},
         width = 650 - margin.left - margin.right,
         height = 650 - margin.top - margin.bottom;

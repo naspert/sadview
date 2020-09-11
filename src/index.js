@@ -215,28 +215,32 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             $('#userinfo').change((event) => {
                 console.log('Displaying user info');
                 displayNodeInfo = displayUserInfo;
-                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+                if (selectedNode)
+                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
             });
 
             $('#userhashtags').off();
             $('#userhashtags').change((event) => {
                 console.log('Displaying user hashtags');
                 displayNodeInfo = displayUserHashtags;
-                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+                if (selectedNode)
+                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
             });
 
             $('#communityinfo').off();
             $('#communityinfo').change((event) => {
                 console.log('Displaying community info');
                 displayNodeInfo = displayCommunityInfo;
-                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+                if (selectedNode)
+                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
             });
 
             $('#communitylex').off();
             $('#communitylex').change((event) => {
                 console.log('Displaying community lexical analysis');
                 displayNodeInfo = displayCommunityVoc;
-                displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
+                if (selectedNode)
+                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
             });
 
 
