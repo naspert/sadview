@@ -37,8 +37,9 @@ export function plotCommunityWordcloud(commInfo) {
         .size([width, height])
         .words(words)
         .padding(5)
-        .rotate(function() { return ~~(Math.random() * 2) * 90; })
+        .rotate(function() { return 0; })
         .fontSize(d => d.size)
+        .random(d => 0.4) // try to keep layout between refresh
         .on("end", words => {
             svg
                 .append("g")
