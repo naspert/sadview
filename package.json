@@ -23,6 +23,7 @@
     "graphology-gexf": "^0.5.1",
     "graphology-layout-forceatlas2": "^0.4.3",
     "graphology-metrics": "^1.13.0",
+    "graphology-utils": "^1.7.0",
     "random": "^2.2.0",
     "raw-loader": "^4.0.1",
     "style-loader": "^1.2.1",
@@ -33,6 +34,8 @@
   "dependencies": {
     "@ttskch/select2-bootstrap4-theme": "^1.4.0",
     "bootstrap": "^4.4.1",
+    "d3": "^6.1.1",
+    "d3-cloud": "^1.2.5",
     "graphology": "^0.17.1",
     "graphology-layout": "^0.3.0",
     "jquery": "^3.5.0",
