@@ -303,7 +303,9 @@ const dataDirs = [
     {label: '2020-09-10', file: '2020-09-10/graph_2020-09-10.json.gz',
         clusterInfo: '2020-09-10/cluster_info.json', escape: false},
     {label: '2020-09-11', file: '2020-09-11/graph_2020-09-11.json.gz',
-        clusterInfo: '2020-09-11/cluster_info.json', escape: false}
+        clusterInfo: '2020-09-11/cluster_info.json', escape: false},
+    {label: '2020-09-18/BLM', file: '2020-09-18/graph_2020-09-18.json.gz',
+		clusterInfo: '2020-09-18/cluster_info.json', escape: false}
     ];
 
 // setup data path
