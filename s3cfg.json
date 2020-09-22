@@ -1,0 +1,7 @@
+{
+ "access_key": "",
+ "secret_key": "",
+ "endpoint_url": "https://os.unil.cloud.switch.ch",
+ "bucket": "lts2-sad/twitter"
+}
+
