@@ -17,7 +17,7 @@ const d3 = Object.assign(
 export function plotCommunityWordcloud(commInfo) {
     const words = Object.entries(commInfo.lexical)
         .sort(function(a,b) {return b[1]- a[1]})
-        .slice(0, 50) // take only 50 first words
+        .slice(0, 20) // take only 50 first words
         .map((p) => {
             return {text:p[0], size:Math.round(2 + 10*Math.log(p[1]))};
         });

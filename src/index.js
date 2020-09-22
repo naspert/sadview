@@ -102,7 +102,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
     let clusterInfo;
-    $.getJSON(base_url+'/' + clusterFile, function (data) {
+    $.getJSON(baseUrl +'/' + clusterFile, function (data) {
        clusterInfo = data;
     });
 
@@ -116,7 +116,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
     spinDisp.show();
 
 
-    ky.get(base_url + '/' + filename)
+    ky.get(baseUrl + '/' + filename)
         .then(res => res.arrayBuffer())
         .then(ab => pako.inflate(ab, {to:'string'}))
         .then(r => {
@@ -252,7 +252,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
     });
 }
 
-let base_url = "";
 let highlightedNodes = new Set();
 let highlightedEdges = new Set();
 let hightlightedHashtagNode = new Set();
@@ -294,6 +293,7 @@ const drawCustomLabel = (context, data, settings) => {
     );
 };
 
+const baseUrl = 'https://os.unil.cloud.switch.ch/lts2-sad/twitter/results';
 // data file
 const dataDirs = [
     {label: '2020-09-08', file: '2020-09-08/graph_2020-09-08.json.gz',
@@ -308,12 +308,6 @@ const dataDirs = [
 		clusterInfo: '2020-09-18/cluster_info.json', escape: false}
     ];
 
-// setup data path
-if (process.env.NODE_ENV !== 'production') {
-    console.log('Looks like we are in development mode!');
- } else {
-    base_url = process.env.BASE_URL;
-}
 
 
 

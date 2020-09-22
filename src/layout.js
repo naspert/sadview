@@ -15,6 +15,7 @@ const pako = require('pako');
 const path = require('path');
 // Load the core build.
 const _ = require('lodash');
+const { ArgumentParser } = require('argparse');
 
 const MIN_PALETTE_SIZE = 8;
 const MAX_PALETTE_SIZE = 65;
@@ -218,9 +219,16 @@ function processDirectories(startDir, options) {
     });
 }
 
-if (!process.argv[2] || !process.argv[3] || !process.argv[4]) {
-    console.log('Usage: layout input_dir output_dir method (FA2|CP) [num_iter]');
-} else {
-    const numIter = process.argv[5] ? parseInt(process.argv[5]):200;
-    processDirectories(process.argv[2], {outDir: process.argv[3], method: process.argv[4], numIter: numIter})
-}
+/* main */
+const parser = new ArgumentParser({
+    description: 'Compute layouts'
+});
+
+parser.add_argument('-i', '--input-dir', { help: 'Input directory', nargs: 1 });
+parser.add_argument('-o', '--output-dir', { help: 'Output directory', nargs: 1 });
+parser.add_argument('-m', '--method', { help: 'Layout method [FA2|CP] (default=Force Atlas 2) ', default: 'FA2' });
+parser.add_argument('-n', '--num-iter', { help: 'Number of iterations (default=200)', default:200});
+opt = parser.parse_args();
+console.dir(opt);
+
+processDirectories(opt.input_dir[0], {outDir: opt.output_dir[0], method: opt.method, numIter: opt.numIter});
