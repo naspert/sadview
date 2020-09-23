@@ -89,7 +89,7 @@ async function processS3DataDir(s3, s3Config, dir, options, index) {
             saveCompressedOutputS3(s3, s3Config, res.compressedGraph, filesList.Prefix + grOutFile),
             markFolderProcessed(s3, s3Config, filesList.Prefix)
         ])
-    }).then(res => {
+    }).then(() => {
         console.log('Processing ', grFile, ' done !');
         const base = path.basename(dir);
         index.push({
