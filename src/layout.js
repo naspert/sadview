@@ -15,17 +15,19 @@ parser.add_argument('-i', '--input-dir', { help: 'Input directory', nargs: 1 });
 parser.add_argument('-o', '--output-dir', { help: 'Output directory', nargs: 1 });
 parser.add_argument('-m', '--method', { help: 'Layout method [FA2|CP] (default=Force Atlas 2) ', default: 'FA2' });
 parser.add_argument('-n', '--num-iter', { help: 'Number of iterations (default=200)', type: 'int', default:200});
+parser.add_argument('-f', '--force', { help: 'Perform layout even if folder already processed', action: 'store_true'});
 opt = parser.parse_args();
 console.dir(opt);
 
+const layoutOpts = { outDir: opt.output_dir[0], method: opt.method, numIter: opt.num_iter, force: opt.force };
 if (typeof(opt.s3_config) !== 'undefined') {
-    const s3Config = JSON.parse(fs.readFileSync(opt.s3_config));
+    const s3Config = JSON.parse(fs.readFileSync(opt.s3_config).toString('utf8'));
     if (!s3Config.access_key)
         s3Config.access_key = process.env.S3_ACCESS_KEY;
     if (!s3Config.secret_key)
         s3Config.secret_key = process.env.S3_SECRET_KEY;
-    s3Graph.processS3Directories(s3Config, opt.input_dir[0], {outDir: opt.output_dir[0], method: opt.method, numIter: opt.num_iter});
+    s3Graph.processS3Directories(s3Config, opt.input_dir[0], layoutOpts);
 }
 else {
-    fsGraph.processDirectories(opt.input_dir[0], {outDir: opt.output_dir[0], method: opt.method, numIter: opt.num_iter});
+    fsGraph.processDirectories(opt.input_dir[0], layoutOpts);
 }

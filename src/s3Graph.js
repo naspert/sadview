@@ -71,7 +71,7 @@ async function processS3DataDir(s3, s3Config, dir, options, index) {
 
     const filesList = await s3.listObjectsV2(params).promise();
     const files = filesList.Contents.map(v => v.Key.replace(filesList.Prefix, ''));
-    if (files.includes('.processed')) {// nothing to do
+    if (!options.force && files.includes('.processed')) {// nothing to do
         console.log('Directory ', dir, ' already processed. Skipping.')
         return; // should be present in index
     }
@@ -92,10 +92,11 @@ async function processS3DataDir(s3, s3Config, dir, options, index) {
     }).then(() => {
         console.log('Processing ', grFile, ' done !');
         const base = path.basename(dir);
-        index.push({
-            label: base, graph: path.join(base, grOutFile),
-            clusterInfo: path.join(base, 'cluster_info.json'), escape: false
-        });
+        if (!options.force || !files.includes('.processed'))
+            index.push({
+                label: base, graph: path.join(base, grOutFile),
+                clusterInfo: path.join(base, 'cluster_info.json'), escape: false
+            });
     }).catch((error) => {
         console.error(error);
     });
