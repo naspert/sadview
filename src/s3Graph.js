@@ -126,7 +126,7 @@ async function processS3Directories(s3Config, startDir, options) {
         const newLabels = data.CommonPrefixes.map(v => path.basename(v.Prefix));
         // find deleted items and remove them from index
         const deletedLabels = newLabels.filter(v => !labels.includes(v));
-        const cleanIndex = index.filter(v => !deletedLabels.include(v.label));
+        const cleanIndex = index.filter(v => !deletedLabels.includes(v.label));
         for (const cp of data.CommonPrefixes) {
             await processS3DataDir(s3, s3Config, cp.Prefix, options, cleanIndex);
         }
