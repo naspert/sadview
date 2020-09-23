@@ -3,9 +3,9 @@ pages:
   script:
     - yarn install
     - yarn build --mode=production
-    
+    - yarn layout -s $S3CFG_JSON -i twitter/results -o out -m FA2 -n 500
+
   artifacts:
     paths:
       - public
-  only:
-    - master
+
