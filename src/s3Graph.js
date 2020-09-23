@@ -59,51 +59,45 @@ async function loadIndex(s3, s3Config, dir) {
     if (!indexExists)
         return [];
     const index = await s3.getObject(params).promise();
-    return JSON.parse(index);
+    return JSON.parse(index.Body.toString());
 }
 
-function processS3DataDir(s3, s3Config, dir, options, index) {
+async function processS3DataDir(s3, s3Config, dir, options, index) {
     const params = {
         Bucket : s3Config.bucket,
         Delimiter: '/',
         Prefix: dir.endsWith('/') ? dir : dir + '/'
     }
 
-    s3.listObjectsV2(params, (err, data) => {
-        if (err) {
-            console.log("Error", err);
-        } else {
-            const files = data.Contents.map(v => v.Key.replace(data.Prefix, ''));
-            if (files.includes('.processed')) {// nothing to do
-                console.log('Directory ', dir, ' already processed. Skipping.')
-                return; // should be present in index
-            }
-            files.forEach(f => {
-                if (f.endsWith('.gexf')) {
-                    const fout = f.replace('.gexf', '.json.gz')
-                    Promise.all([
-                        loadS3GraphFile(s3, s3Config, data.Prefix + f),
-                        readLexFileS3(s3, s3Config, data.Prefix + 'clusters.json')
-                    ]).then(res => {
-                            console.log('Processing ', f, ' --> ', fout);
-                            return computeLayout(res[0], options.method, options.numIter, res[1]);
-                    }).then(res => {
-                            return Promise.all([
-                                saveClusterInfoS3(s3, s3Config, res.clusterInfo, data.Prefix + 'cluster_info.json'),
-                                saveCompressedOutputS3(s3, s3Config, res.compressedGraph, data.Prefix + fout),
-                                markFolderProcessed(s3, s3Config, data.Prefix)
-                            ])
-                    }).then(res => {
-                        console.log('Processing ', f, ' done !');
-                        const base = path.basename(dir);
-                        index.push({label: base, graph: path.join(base, fout),
-                            clusterInfo: path.join(base, 'cluster_info.json'), escape: false});
-                    }).catch((error) => {
-                        console.error(error);
-                    });
-                }
-            });
-        }
+    const filesList = await s3.listObjectsV2(params).promise();
+    const files = filesList.Contents.map(v => v.Key.replace(filesList.Prefix, ''));
+    if (files.includes('.processed')) {// nothing to do
+        console.log('Directory ', dir, ' already processed. Skipping.')
+        return; // should be present in index
+    }
+    const grFile = files.find(f => f.endsWith('.gexf'));
+    const grOutFile = grFile.replace('.gexf', '.json.gz');
+    return Promise.all([
+        loadS3GraphFile(s3, s3Config, filesList.Prefix + grFile),
+        readLexFileS3(s3, s3Config, filesList.Prefix + 'clusters.json')
+    ]).then(res => {
+        console.log('Processing ', grFile, ' --> ', grOutFile);
+        return computeLayout(res[0], options.method, options.numIter, res[1]);
+    }).then(res => {
+        return Promise.all([
+            saveClusterInfoS3(s3, s3Config, res.clusterInfo, filesList.Prefix + 'cluster_info.json'),
+            saveCompressedOutputS3(s3, s3Config, res.compressedGraph, filesList.Prefix + grOutFile),
+            markFolderProcessed(s3, s3Config, filesList.Prefix)
+        ])
+    }).then(res => {
+        console.log('Processing ', grFile, ' done !');
+        const base = path.basename(dir);
+        index.push({
+            label: base, graph: path.join(base, grOutFile),
+            clusterInfo: path.join(base, 'cluster_info.json'), escape: false
+        });
+    }).catch((error) => {
+        console.error(error);
     });
 }
 
@@ -122,15 +116,27 @@ async function processS3Directories(s3Config, startDir, options) {
         Prefix: dir
     };
     const index = await loadIndex(s3, s3Config, dir);
-    s3.listObjectsV2(bucketParams, function(err, data) {
+    await s3.listObjectsV2(bucketParams).promise().then(async function(data, err) {
         if (err) {
             console.log("Error", err);
-        } else {
-            data.CommonPrefixes.forEach(cp => {
-                processS3DataDir(s3, s3Config, cp.Prefix, options, index);
-            });
+            throw err;
         }
+        for (const cp of data.CommonPrefixes) {
+            await processS3DataDir(s3, s3Config, cp.Prefix, options, index);
+        }
+        return index;
+    }).then(idx => {
+        const params = { Bucket: s3Config.bucket, Key: path.join(startDir, 'index.json'), Body: JSON.stringify(idx) }
+         return s3.putObject(params).promise();
+    }).then((data, err) => {
+        if (err)
+            throw err;
+
+        console.log('Index uploaded -> done.');
+    }).catch(err => {
+        console.error(err);
     });
+
 }
 
 exports.processS3Directories = processS3Directories
