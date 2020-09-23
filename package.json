@@ -8,8 +8,7 @@
     "devserve": "webpack-dev-server",
     "predeploy": "yarn run build --mode=production",
     "deploy": "gh-pages -b gh-pages -d public -o origin-gh",
-    "layout": "node src/layout.js",
-    "postbuild": "node src/layout.js data public FA2 500"
+    "layout": "node src/layout.js"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
@@ -24,6 +23,7 @@
     "graphology-layout-forceatlas2": "^0.4.3",
     "graphology-metrics": "^1.13.0",
     "graphology-utils": "^1.7.0",
+    "lodash": "^4.17.20",
     "random": "^2.2.0",
     "raw-loader": "^4.0.1",
     "style-loader": "^1.2.1",
@@ -33,6 +33,8 @@
   },
   "dependencies": {
     "@ttskch/select2-bootstrap4-theme": "^1.4.0",
+    "argparse": "^2.0.1",
+    "aws-sdk": "^2.756.0",
     "bootstrap": "^4.4.1",
     "d3": "^6.1.1",
     "d3-cloud": "^1.2.5",

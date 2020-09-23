@@ -1,0 +1,7 @@
+{
+ "access_key": "accesskey",
+ "secret_key": "secretkey",
+ "endpoint_url": "https://example.com/s3",
+ "bucket": "mybucket"
+}
+

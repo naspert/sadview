@@ -102,7 +102,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
     let clusterInfo;
-    $.getJSON(base_url+'/' + clusterFile, function (data) {
+    $.getJSON(baseUrl +'/' + clusterFile, function (data) {
        clusterInfo = data;
     });
 
@@ -116,7 +116,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
     spinDisp.show();
 
 
-    ky.get(base_url + '/' + filename)
+    ky.get(baseUrl + '/' + filename)
         .then(res => res.arrayBuffer())
         .then(ab => pako.inflate(ab, {to:'string'}))
         .then(r => {
@@ -252,7 +252,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
     });
 }
 
-let base_url = "";
 let highlightedNodes = new Set();
 let highlightedEdges = new Set();
 let hightlightedHashtagNode = new Set();
@@ -294,61 +293,51 @@ const drawCustomLabel = (context, data, settings) => {
     );
 };
 
-// data file
-const dataDirs = [
-    {label: '2020-09-08', file: '2020-09-08/graph_2020-09-08.json.gz',
-        clusterInfo: '2020-09-08/cluster_info.json', escape: false},
-    {label: '2020-09-09', file: '2020-09-09/graph_2020-09-09.json.gz',
-        clusterInfo: '2020-09-09/cluster_info.json', escape: false},
-    {label: '2020-09-10', file: '2020-09-10/graph_2020-09-10.json.gz',
-        clusterInfo: '2020-09-10/cluster_info.json', escape: false},
-    {label: '2020-09-11', file: '2020-09-11/graph_2020-09-11.json.gz',
-        clusterInfo: '2020-09-11/cluster_info.json', escape: false},
-    {label: '2020-09-18-BLM', file: '2020-09-18/graph_2020-09-18.json.gz',
-		clusterInfo: '2020-09-18/cluster_info.json', escape: false}
-    ];
+const baseUrl = 'https://os.unil.cloud.switch.ch/lts2-sad/twitter/results';
+let dataDirs = [];
+$.getJSON(baseUrl +'/' + 'index.json', function (data) {
+    dataDirs = data;
 
-// setup data path
-if (process.env.NODE_ENV !== 'production') {
-    console.log('Looks like we are in development mode!');
- } else {
-    base_url = process.env.BASE_URL;
-}
-
-
-
-// populate dropdown
-const dropdown = $('#graph-selector');
-dropdown.empty();
-$.each(dataDirs, function(key, value) {
-    dropdown.append($('<a class="dropdown-item"></a>')
-        .attr('data-graph', value.file)
-        .attr('id', value.label)
-        .attr('data-label', value.label)
-        .attr('data-escape', value.escape)
-        .attr('data-cluster', value.clusterInfo)
-        .text(value.label));
-});
-
-// register click handler
-$('.dropdown-menu').click((event) => {
-    const menu_clicked = $(event.target);
-    console.log('Clicked menu: ' + menu_clicked.data('label'));
-    if (menu_clicked.hasClass('active')) // nothing to do
-        return;
-
-    dropdown.children().each(function() {
-        $(this).removeClass('active');
+    // populate dropdown
+    const dropdown = $('#graph-selector');
+    dropdown.empty();
+    $.each(dataDirs, function(key, value) {
+        dropdown.append($('<a class="dropdown-item"></a>')
+            .attr('data-graph', value.graph)
+            .attr('id', value.label)
+            .attr('data-label', value.label)
+            .attr('data-escape', value.escape)
+            .attr('data-cluster', value.clusterInfo)
+            .text(value.label));
     });
-    const item = $('#' + menu_clicked.data('label'));
-    item.addClass('active');
-    loadedFile = item.data('graph');
-    clusterFile = item.data('cluster');
-    escapeNeeded = item.data('escape');
+
+    // register click handler
+    $('.dropdown-menu').click((event) => {
+        const menu_clicked = $(event.target);
+        console.log('Clicked menu: ' + menu_clicked.data('label'));
+        if (menu_clicked.hasClass('active')) // nothing to do
+            return;
+
+        dropdown.children().each(function() {
+            $(this).removeClass('active');
+        });
+        const item = $('#' + menu_clicked.data('label'));
+        item.addClass('active');
+        loadedFile = item.data('graph');
+        clusterFile = item.data('cluster');
+        escapeNeeded = item.data('escape');
+        renderGraph(loadedFile, clusterFile, escapeNeeded);
+        $('#fa2').parent().addClass('active');
+        $('#circlepack').parent().removeClass('active');
+    });
+    // load default graph
+    $('#' + dataDirs[0].label).addClass('active');
+    loadedFile = dataDirs[0].graph;
+    clusterFile = dataDirs[0].clusterInfo;
+    escapeNeeded = dataDirs[0].escape
     renderGraph(loadedFile, clusterFile, escapeNeeded);
-    $('#fa2').parent().addClass('active');
-    $('#circlepack').parent().removeClass('active');
 });
+
 
 $('#fa2').change((event) => {
    console.log('FA2 layout -> reload coords');
@@ -390,11 +379,6 @@ $('#outdegree').change((event) => {
 });
 
 
-// load default graph
-$('#2020-09-08').addClass('active');
-loadedFile = dataDirs[0].file;
-clusterFile = dataDirs[0].clusterInfo;
-escapeNeeded = dataDirs[0].escape
-renderGraph(loadedFile, clusterFile, escapeNeeded);
+
 
 
