@@ -117,15 +117,20 @@ async function processS3Directories(s3Config, startDir, options) {
         Prefix: dir
     };
     const index = await loadIndex(s3, s3Config, dir);
+    const labels = index.map(v => v.label);
     await s3.listObjectsV2(bucketParams).promise().then(async function(data, err) {
         if (err) {
             console.log("Error", err);
             throw err;
         }
+        const newLabels = data.CommonPrefixes.map(v => path.basename(v.Prefix));
+        // find deleted items and remove them from index
+        const deletedLabels = newLabels.filter(v => !labels.includes(v));
+        const cleanIndex = index.filter(v => !deletedLabels.include(v.label));
         for (const cp of data.CommonPrefixes) {
-            await processS3DataDir(s3, s3Config, cp.Prefix, options, index);
+            await processS3DataDir(s3, s3Config, cp.Prefix, options, cleanIndex);
         }
-        return index;
+        return cleanIndex;
     }).then(idx => {
         const params = { Bucket: s3Config.bucket, Key: path.join(startDir, 'index.json'), Body: JSON.stringify(idx) }
          return s3.putObject(params).promise();
