@@ -46,6 +46,7 @@ function displayUserInfo(node, attr, clusterInfo, escapeAttr) {
     const infoDisp = $('#info-disp');
     infoDisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
+    displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
 }
 
 function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
@@ -57,6 +58,7 @@ function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
         $('#info-disp').empty();
         if (hashTags.length > 0)
             plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+        displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
     });
 }
 
@@ -66,6 +68,7 @@ function displayCommunityInfo(node, attr, clusterInfo, escapeAttr) {
     const infoDisp = $('#info-disp');
     const community = clusterInfo[attr.community];
     infoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
+    displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
 }
 
 function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
@@ -74,7 +77,7 @@ function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
     const community = clusterInfo[attr.community];
     import(/* webpackChunkName: "plot_community" */'./plot_community').then(module => {
         const plotCommunityWordcloud = module.plotCommunityWordcloud;
-        $('#info-disp').empty();
+        $('#wordcloud').empty();
         plotCommunityWordcloud(community);
     });
 }
@@ -231,14 +234,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             $('#communityinfo').change((event) => {
                 console.log('Displaying community info');
                 displayNodeInfo = displayCommunityInfo;
-                if (selectedNode)
-                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
-            });
-
-            $('#communitylex').off();
-            $('#communitylex').change((event) => {
-                console.log('Displaying community lexical analysis');
-                displayNodeInfo = displayCommunityVoc;
                 if (selectedNode)
                     displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
             });
