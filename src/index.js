@@ -43,9 +43,11 @@ function highlightNodes(graph, hashtag, renderer) {
 function displayUserInfo(node, attr, clusterInfo, escapeAttr) {
     if (node === "")
         return;
-    const infoDisp = $('#info-disp');
+    const infoDisp = $('#userinfo-disp');
     infoDisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
+    displayUserHashtags(node, attr, clusterInfo, escapeAttr);
+    displayCommunityInfo(node, attr, clusterInfo, escapeAttr);
     displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
 }
 
@@ -55,20 +57,18 @@ function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
     import(/* webpackChunkName: "plot_hashtags" */ './plot_hashtags').then(module => {
         const plotHashtags = module.plotHashtags;
         const hashTags = attr['all_hashtags'] || '[]';
-        $('#info-disp').empty();
+        $('#userhashtags-disp').empty();
         if (hashTags.length > 0)
             plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
-        displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
     });
 }
 
 function displayCommunityInfo(node, attr, clusterInfo, escapeAttr) {
     if (node === "")
         return;
-    const infoDisp = $('#info-disp');
+    const infoDisp = $('#comminfo-disp');
     const community = clusterInfo[attr.community];
     infoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
-    displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
 }
 
 function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
@@ -77,7 +77,7 @@ function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
     const community = clusterInfo[attr.community];
     import(/* webpackChunkName: "plot_community" */'./plot_community').then(module => {
         const plotCommunityWordcloud = module.plotCommunityWordcloud;
-        $('#wordcloud').empty();
+        $('#wordcloud-disp').empty();
         plotCommunityWordcloud(community);
     });
 }
@@ -213,30 +213,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
                 highlightNodes(g, htag, renderer);
             });
 
-            // info button group
-            $('#userinfo').off();
-            $('#userinfo').change((event) => {
-                console.log('Displaying user info');
-                displayNodeInfo = displayUserInfo;
-                if (selectedNode)
-                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
-            });
-
-            $('#userhashtags').off();
-            $('#userhashtags').change((event) => {
-                console.log('Displaying user hashtags');
-                displayNodeInfo = displayUserHashtags;
-                if (selectedNode)
-                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
-            });
-
-            $('#communityinfo').off();
-            $('#communityinfo').change((event) => {
-                console.log('Displaying community info');
-                displayNodeInfo = displayCommunityInfo;
-                if (selectedNode)
-                    displayNodeInfo(selectedNode, g.getNodeAttributes(selectedNode), clusterInfo, escapeAttr);
-            });
 
 
             window.graph = g;

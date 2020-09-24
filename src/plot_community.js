@@ -27,7 +27,7 @@ export function plotCommunityWordcloud(commInfo) {
         height = 450 - margin.top - margin.bottom;
 
     const fillScale = scaleOrdinal(schemeTableau10);
-    let svg = d3.select("#wordcloud").append("svg")
+    let svg = d3.select("#wordcloud-disp").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")

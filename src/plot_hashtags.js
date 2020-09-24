@@ -26,7 +26,7 @@ export function plotHashtags(htListJson) {
             pad: 4
         }
     };
-    plotly.newPlot('info-disp', data, layout);
+    plotly.newPlot('userhashtags-disp', data, layout);
 }
 
 export function plotCommunityVoc(commInfo) {
