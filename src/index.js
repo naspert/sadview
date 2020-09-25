@@ -101,7 +101,6 @@ function circlePackLayout(graphObj) {
 }
 
 function renderGraph(filename, clusterFile, escapeAttr) {
-    const infoDisp = $('#info-disp');
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
     let clusterInfo;
@@ -109,7 +108,10 @@ function renderGraph(filename, clusterFile, escapeAttr) {
        clusterInfo = data;
     });
 
-    infoDisp.empty();
+    $('#userhashtags-disp').empty();
+    $('#userinfo-disp').empty();
+    $('#wordcloud-disp').empty();
+    $('#comminfo-disp').empty();
     selectedNode = ""
     console.log('Rendering ' + filename);
     if (window.graph)
@@ -300,6 +302,9 @@ $.getJSON(baseUrl +'/' + 'index.json', function (data) {
         renderGraph(loadedFile, clusterFile, escapeNeeded);
         $('#fa2').parent().addClass('active');
         $('#circlepack').parent().removeClass('active');
+        $('#degree').parent().addClass('active');
+        $('#indegree').parent().removeClass('active');
+        $('#outdegree').parent().removeClass('active');
     });
     // load default graph
     $('#' + dataDirs[0].label).addClass('active');
