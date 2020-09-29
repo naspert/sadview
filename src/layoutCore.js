@@ -54,7 +54,7 @@ function computeLayout(graphObj, methodName, numIter, clusterLex) {
     const maxWeight = graphObj.edges()
         .reduce((acc, curr) => Math.max(acc, graphObj.getEdgeAttribute(curr, 'weight')), 0);
     const maxHop = graphObj.nodes()
-        .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'spikyball_hop')), 0) + 1;
+        .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'spikyball_hop')), 0);
     const PALETTE = palette('mpn65', Math.min(Math.max(MIN_PALETTE_SIZE, numCommunities), MAX_PALETTE_SIZE))
         .map(function (colorStr) { return '#' + colorStr; });
     graphObj.setAttribute('num communities', numCommunities);
@@ -64,6 +64,7 @@ function computeLayout(graphObj, methodName, numIter, clusterLex) {
 
     console.log('found ' + numCommunities + ' communities');
     console.log('Max weight = ' + maxWeight );
+    console.log('Max hop=' + maxHop);
     console.time('Degree computation');
 
     degree.allDegree(graphObj, {types: ['inDegree', 'outDegree']}, true);
