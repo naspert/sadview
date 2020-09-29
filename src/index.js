@@ -8,6 +8,9 @@ import 'select2/dist/js/select2.min';
 import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import $ from 'jquery';
+import 'bootstrap-slider';
+import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
+import Color from 'color';
 
 function formatAttributes(attr_data, attr_func) {
     const user_details = attr_func(attr_data['user_details']);
@@ -167,10 +170,10 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             // cache fa2 coords, as recomputing/reloading is expensive
             savedCoords = {};
             g.forEachNode(function (key, attr) {
-               savedCoords[key] = {x: attr.x, y: attr.y};
+                savedCoords[key] = {x: attr.x, y: attr.y};
             });
 
-            const nodeSelectData = [{id:'', text:''}].concat($.map(g.nodes(), function (n) {
+            const nodeSelectData = [{id: '', text: ''}].concat($.map(g.nodes(), function (n) {
                 return {
                     id: n,
                     text: n,
@@ -195,7 +198,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             });
 
             const hashtagList = g.getAttribute('hashtags');
-            const hashtagSelectData = [{id:'', text:''}].concat($.map(hashtagList, function (h) {
+            const hashtagSelectData = [{id: '', text: ''}].concat($.map(hashtagList, function (h) {
                 return {
                     id: h,
                     text: h,
@@ -215,8 +218,19 @@ function renderGraph(filename, clusterFile, escapeAttr) {
                 highlightNodes(g, htag, renderer);
             });
 
+            maxHop = g.getAttribute('max hop');
+            currMaxHop = maxHop;
 
+            if (slider)
+                slider.slider('destroy');
 
+            slider = $('#hopSlider').slider({min: 0, max: maxHop, value: maxHop});
+            $('#hopSlider').on('slide', function (slideEvt) {
+                currMaxHop = slideEvt.value;
+                renderer.refresh();
+            });
+
+            renderer.refresh();
             window.graph = g;
             window.renderer = renderer;
             window.camera = renderer.camera;
@@ -234,11 +248,20 @@ let clusterFile;
 let savedCoords = {};
 let displayNodeInfo = displayUserInfo;
 let selectedNode = "";
-
+let maxHop = 5;
+let currMaxHop = 5;
+let slider;
 
 const nodeReducer = (node, data) => {
+    if (data.spikyball_hop > currMaxHop) {
+        const delta = data.spikyball_hop - currMaxHop;
+        const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
+        const newColor = Color(data.color).darken(1.5*delta/maxHop).desaturate(1.5*delta/maxHop).alpha(alpha);
+
+        return {...data, color: newColor.rgb().string(), zIndex: 0};
+    }
     if (highlightedNodes.has(node))
-        return {...data, color: '#f00', zIndex: 1};
+        return {...data, color: '#8a7878', zIndex: 1};
     if (hightlightedHashtagNode.has(node))
         return {...data, color: '#0f0', zIndex: 1};
     return data;
