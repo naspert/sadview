@@ -53,10 +53,13 @@ function computeLayout(graphObj, methodName, numIter, clusterLex) {
         .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'community')), 0) + 1;
     const maxWeight = graphObj.edges()
         .reduce((acc, curr) => Math.max(acc, graphObj.getEdgeAttribute(curr, 'weight')), 0);
+    const maxHop = graphObj.nodes()
+        .reduce((acc, curr) => Math.max(acc, graphObj.getNodeAttribute(curr, 'spikyball_hop')), 0) + 1;
     const PALETTE = palette('mpn65', Math.min(Math.max(MIN_PALETTE_SIZE, numCommunities), MAX_PALETTE_SIZE))
         .map(function (colorStr) { return '#' + colorStr; });
     graphObj.setAttribute('num communities', numCommunities);
     graphObj.setAttribute('max weight', maxWeight);
+    graphObj.setAttribute('max hop', maxHop);
     console.timeEnd('Counting communities / max weight');
 
     console.log('found ' + numCommunities + ' communities');
