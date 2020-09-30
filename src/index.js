@@ -134,6 +134,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
         .then(graph_data => {
             const container = $('#sigma-container');
             const g = graph.from(graph_data);
+            maxWeight = g.getAttribute('max weight');
             const renderer = new WebGLRenderer(g, container[0], {
                 nodeReducer,
                 edgeReducer,
@@ -142,7 +143,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             });
 
             renderer.on('enterNode', ({node}) => {
-                console.log('Entering: ', node);
                 highlightedNodes = new Set(g.neighbors(node));
                 highlightedNodes.add(node);
                 highlightedEdges = new Set(g.edges(node));
@@ -151,8 +151,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             });
 
             renderer.on('leaveNode', ({node}) => {
-                console.log('Leaving:', node);
-
                 highlightedNodes.clear();
                 highlightedEdges.clear();
 
@@ -160,7 +158,6 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             });
 
             renderer.on('clickNode', ({node}) => {
-                console.log('Clicking:', node);
                 const attr = g.getNodeAttributes(node);
                 selectedNode = node;
                 displayNodeInfo(node, attr, clusterInfo, escapeAttr);
@@ -230,6 +227,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
                 renderer.refresh();
             });
 
+
             renderer.refresh();
             window.graph = g;
             window.renderer = renderer;
@@ -251,8 +249,13 @@ let selectedNode = "";
 let maxHop = 5;
 let currMaxHop = 5;
 let slider;
+let maxWeight = 1;
 
 const nodeReducer = (node, data) => {
+    if (highlightedNodes.has(node))
+        return {...data, color: '#f00', zIndex: 1};
+    if (hightlightedHashtagNode.has(node))
+        return {...data, color: '#0f0', zIndex: 1};
     if (data.spikyball_hop > currMaxHop) {
         const delta = data.spikyball_hop - currMaxHop;
         const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
@@ -260,18 +263,15 @@ const nodeReducer = (node, data) => {
 
         return {...data, color: newColor.rgb().string(), zIndex: 0};
     }
-    if (highlightedNodes.has(node))
-        return {...data, color: '#8a7878', zIndex: 1};
-    if (hightlightedHashtagNode.has(node))
-        return {...data, color: '#0f0', zIndex: 1};
     return data;
 };
 
 const edgeReducer = (edge, data) => {
     if (highlightedEdges.has(edge))
         return {...data, color: '#ff0000', zIndex: 1};
-
-    return data;
+    const weight = data.weight;
+    const color = Color('#111').alpha(0.1 + 0.7*weight*(currMaxHop+1)/(maxWeight*(maxHop+1)));
+    return {...data, color: color.rgb().string()};
 };
 
 const drawCustomLabel = (context, data, settings) => {
