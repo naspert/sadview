@@ -5,6 +5,8 @@ cache:
   paths:
     - node_modules/
 
+variables:
+  GIT_SSL_NO_VERIFY: "1"
 
 pages:
   script:
