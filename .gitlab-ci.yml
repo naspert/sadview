@@ -7,6 +7,9 @@ cache:
 
 
 pages:
+  before_script:
+    - apt-get update && apt-get install -q -y ca-certificates
+
   script:
     - yarn install
     - yarn build --mode=production
