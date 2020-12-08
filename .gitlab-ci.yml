@@ -1,4 +1,4 @@
-image: node:lts-buster
+image: lts2epfl/sadview
 
 cache:
   key: "$CI_BUILD_REF_NAME"
