@@ -19,13 +19,3 @@ pages:
     paths:
       - public
 
-build image:
-  image: docker:20.10.3
-  stage: build
-  services:
-    - name: docker:20.10.3-dind
-      alias: docker
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $CI_REGISTRY/imi-sad/sadview-server:latest -f docker-server/Dockerfile .
-    - docker push $CI_REGISTRY/imi-sad/sadview-server:latest
