@@ -17,7 +17,10 @@ celeryWorker.register("graph_layout",  async (collect_run_uuid) => {
             const graph_str = pako.inflate(b.result.graph.buffer, {to: 'string'});
             const g = new DirectedGraph.from(gexf.parse(graph, graph_str));
             console.log("Body contains a graph having %d nodes and %d edges", g.order, g.size)
-            return computeLayout(g, "FA2", 200, {});
+            const layout_result =  computeLayout(g, "FA2", 200, {});
+            let result = {graph: layout_result.graph, clusterInfo:layout_result.clusterInfo}
+            result.compressedGraph = Buffer.from(layout_result.compressedGraph).toString("base64");
+            return result;
         });
     return await db.collection("taskmeta_collection")
         .updateOne({_id: collect_run_uuid},
