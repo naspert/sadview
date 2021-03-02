@@ -5,8 +5,8 @@ const palette = require('google-palette');
 const degree = require('graphology-metrics/degree');
 const seedrandom = require('seedrandom');
 const pako = require('pako');
-const path = require('path');
 const cluster = require('./cluster');
+const sn_log = require('simple-node-logger');
 
 const MIN_PALETTE_SIZE = 8;
 const MAX_PALETTE_SIZE = 65;
@@ -22,7 +22,7 @@ function buildHashTagList(graphObj) {
     graphObj.forEachNode(node => {
         const attr = graphObj.getNodeAttributes(node);
 
-        const nodeHashTags = JSON.parse(attr['all_hashtags'].replace(/\'/g, '"') || '{}');
+        const nodeHashTags = JSON.parse(attr['all_hashtags'].replace(/'/g, '"') || '{}');
         Object.keys(nodeHashTags).forEach(t => htags.add(t))
 
     });
@@ -46,7 +46,7 @@ function computeFa2Layout(graphObj, numIter) {
 
 }
 
-function computeLayout(graphObj, methodName, numIter, clusterLex) {
+function computeLayout(graphObj, methodName, numIter, clusterLex, logger=sn_log.createSimpleLogger()) {
 
     console.time('Counting communities / max weight');
     const numCommunities = graphObj.nodes()
@@ -62,9 +62,9 @@ function computeLayout(graphObj, methodName, numIter, clusterLex) {
     graphObj.setAttribute('max hop', maxHop);
     console.timeEnd('Counting communities / max weight');
 
-    console.log('found ' + numCommunities + ' communities');
-    console.log('Max weight = ' + maxWeight );
-    console.log('Max hop=' + maxHop);
+    logger.info('found ', numCommunities, ' communities');
+    logger.info('Max weight = ', maxWeight );
+    logger.info('Max hop=', maxHop);
     console.time('Degree computation');
 
     degree.allDegree(graphObj, {types: ['inDegree', 'outDegree']}, true);
