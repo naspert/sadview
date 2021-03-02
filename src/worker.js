@@ -12,12 +12,12 @@ const log = require('simple-node-logger').createSimpleFileLogger(path.join(proce
 let db;
 
 celeryWorker.register("graph_layout",  async (collect_run_uuid) => {
-    log.info(`Performing layout for run ${collect_run_uuid}`);
+    log.info("Performing layout for run ", collect_run_uuid);
     const result = await db.collection("taskmeta_collection").findOne({_id: collect_run_uuid})
         .then((b) => {
             const graph_str = pako.inflate(b.result.graph.buffer, {to: 'string'});
             const g = new DirectedGraph.from(gexf.parse(graph, graph_str));
-            log.info("Body contains a graph having %d nodes and %d edges", g.order, g.size)
+            log.info("Body contains a graph having ", g.order, " nodes  and ", g.size," edges")
             const layout_result =  computeLayout(g, "FA2", 200, {});
             let result = {graph: layout_result.graph, clusterInfo:layout_result.clusterInfo}
             result.compressedGraph = Buffer.from(layout_result.compressedGraph).toString("base64");
