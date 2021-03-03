@@ -3,6 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
+  "version": "0.1.0",
   "scripts": {
     "build": "webpack",
     "devserve": "webpack-dev-server",
