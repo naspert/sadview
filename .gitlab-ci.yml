@@ -23,7 +23,7 @@ build package:
   before_script:
     - |
       {
-        echo "@imisad:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/"
+        echo "@imi-sad:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/"
         echo "${CI_API_V4_URL#https?}/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
       } | tee --append .npmrc
 

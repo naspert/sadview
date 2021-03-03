@@ -1,9 +1,26 @@
 {
-  "name": "@imisad/sadview",
+  "name": "@imi-sad/sadview",
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "publishConfig": {
+    "@imi-sad:registry":"https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
+  },
+
+  "files": [
+    "static/index.html",
+    "src/index.js",
+    "src/cluster.js",
+    "src/circlepack.js",
+    "src/fsGraph.js",
+    "src/layout.js",
+    "src/layoutCore.js",
+    "src/worker.js",
+    "src/plot_community.js",
+    "src/plot_hashtags.js",
+    "src/s3Graph.js"
+  ],
   "scripts": {
     "build": "webpack",
     "devserve": "webpack-dev-server",
