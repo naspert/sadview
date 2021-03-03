@@ -21,7 +21,7 @@ celeryWorker.register("graph_layout",  async (collect_run_uuid) => {
             const layout_result =  computeLayout(g, "FA2", 200, {}, log);
             let result = {graph: layout_result.graph, clusterInfo:layout_result.clusterInfo}
             result.compressedGraph = Buffer.from(layout_result.compressedGraph).toString("base64");
-            log.info("Layout for ", collect_run_uuid, "completed.");
+            log.info("Layout for ", collect_run_uuid, " completed.");
             return result;
         });
     return await db.collection("taskmeta_collection")

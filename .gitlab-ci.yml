@@ -1,4 +1,4 @@
-
+image: lts2epfl/sadview
 
 cache:
   key: "$CI_BUILD_REF_NAME"
@@ -9,7 +9,6 @@ variables:
   GIT_SSL_NO_VERIFY: "1"
 
 pages:
-  image: lts2epfl/sadview
   script:
     - yarn install
     - yarn build --mode=production
@@ -19,3 +18,10 @@ pages:
     paths:
       - public
 
+build package:
+  stage: package
+  script:
+    - yarn install
+    - yarn build --mode=production
+    - echo "//gitlab.switch.ch/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}">.npmrc
+    - yarn publish

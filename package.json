@@ -1,6 +1,6 @@
 {
-  "name": "sad-graphs-webpack",
-  "private": true,
+  "name": "sadview",
+  "private": false,
   "main": "index.js",
   "license": "MIT",
   "scripts": {
