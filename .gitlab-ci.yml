@@ -19,7 +19,7 @@ pages:
       - public
 
 build package:
-  stage: package
+  stage: build
   script:
     - yarn install
     - yarn build --mode=production
