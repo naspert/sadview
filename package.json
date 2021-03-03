@@ -1,5 +1,5 @@
 {
-  "name": "sadview",
+  "name": "@imi-sad/sadview",
   "private": false,
   "main": "index.js",
   "license": "MIT",
