@@ -15,6 +15,8 @@ const d3 = Object.assign(
 )
 
 export function plotCommunityWordcloud(commInfo) {
+    if (commInfo === undefined)
+        return;
     const words = Object.entries(commInfo.lexical)
         .sort(function(a,b) {return b[1]- a[1]})
         .slice(0, 20) // take only 50 first words
