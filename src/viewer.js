@@ -286,44 +286,7 @@ function renderGraph(graphUUID) {
             window.camera = renderer.camera;
             spinDisp.hide();
             layoutControls.show();
-            $('#fa2').change((event) => {
-                console.log('FA2 layout -> reload coords');
-                window.graph.forEachNode(function(key, attr) {
-                    window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
-                    window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
-                });
-            });
 
-            $('#circlepack').change((event) => {
-                console.log('Circlepack layout');
-                circlePackLayout(window.graph);
-            });
-
-// degree display button group
-
-            $('#degree').change((event) => {
-                console.log('size <=> degree');
-                computeNodesSize(window.graph, 'degree');
-                if ($('#circlepack').parent().hasClass('active')) {
-                    circlePackLayout(window.graph);
-                }
-            });
-
-            $('#indegree').change((event) => {
-                console.log('size <=> in-degree');
-                computeNodesSize(window.graph, 'inDegree');
-                if ($('#circlepack').parent().hasClass('active')) {
-                    circlePackLayout(window.graph);
-                }
-            });
-
-            $('#outdegree').change((event) => {
-                console.log('size <=> out-degree');
-                computeNodesSize(window.graph, 'outDegree');
-                if ($('#circlepack').parent().hasClass('active')) {
-                    circlePackLayout(window.graph);
-                }
-            });
 
         });
 }
@@ -332,4 +295,43 @@ function renderGraph(graphUUID) {
 // instead of parsing url ?
 const uuidGraph = window.location.toString().match(uuidRegex)[0];
 renderGraph(uuidGraph);
+window.onload = function() {
+    $('#fa2').change((event) => {
+        console.log('FA2 layout -> reload coords');
+        window.graph.forEachNode(function(key, attr) {
+            window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
+            window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
+        });
+    });
 
+    $('#circlepack').change((event) => {
+        console.log('Circlepack layout');
+        circlePackLayout(window.graph);
+    });
+
+// degree display button group
+
+    $('#degree').change((event) => {
+        console.log('size <=> degree');
+        computeNodesSize(window.graph, 'degree');
+        if ($('#circlepack').parent().hasClass('active')) {
+            circlePackLayout(window.graph);
+        }
+    });
+
+    $('#indegree').change((event) => {
+        console.log('size <=> in-degree');
+        computeNodesSize(window.graph, 'inDegree');
+        if ($('#circlepack').parent().hasClass('active')) {
+            circlePackLayout(window.graph);
+        }
+    });
+
+    $('#outdegree').change((event) => {
+        console.log('size <=> out-degree');
+        computeNodesSize(window.graph, 'outDegree');
+        if ($('#circlepack').parent().hasClass('active')) {
+            circlePackLayout(window.graph);
+        }
+    });
+}
