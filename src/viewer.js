@@ -215,7 +215,7 @@ function renderGraph(graphUUID) {
             renderer.on('clickNode', ({node}) => {
                 const attr = g.getNodeAttributes(node);
                 selectedNode = node;
-                displayNodeInfo(node, attr, clusterInfo, escapeAttr);
+                displayNodeInfo(node, attr, clusterInfo);
             });
 
 
@@ -246,7 +246,7 @@ function renderGraph(graphUUID) {
                 const node = e.params.data.id;
                 highlightNode(node, g, renderer);
                 selectedNode = node;
-                displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo, escapeAttr);
+                displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo);
             });
 
             const hashtagList = g.getAttribute('hashtags');
