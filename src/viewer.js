@@ -1,3 +1,4 @@
+import './publicPath';
 import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
 import pako from 'pako';
