@@ -286,8 +286,7 @@ function renderGraph(graphUUID) {
             window.camera = renderer.camera;
             spinDisp.hide();
             layoutControls.show();
-
-
+            console.log('Rendering done');
         });
 }
 
@@ -296,6 +295,7 @@ function renderGraph(graphUUID) {
 const uuidGraph = window.location.toString().match(uuidRegex)[0];
 renderGraph(uuidGraph);
 window.onload = function() {
+    console.log('onload start...');
     $('#fa2').change((event) => {
         console.log('FA2 layout -> reload coords');
         window.graph.forEachNode(function(key, attr) {
@@ -334,4 +334,5 @@ window.onload = function() {
             circlePackLayout(window.graph);
         }
     });
+    console.log('onload complete');
 }
