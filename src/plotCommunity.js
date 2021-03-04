@@ -15,7 +15,7 @@ const d3 = Object.assign(
 )
 
 export function plotCommunityWordcloud(commInfo) {
-    if (commInfo === undefined)
+    if (commInfo.lexical === null)
         return;
     const words = Object.entries(commInfo.lexical)
         .sort(function(a,b) {return b[1]- a[1]})
