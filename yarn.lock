@@ -384,9 +384,9 @@ atob@^2.1.2:
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
 aws-sdk@^2.756.0:
-  version "2.855.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.855.0.tgz#2788e2655d8e2eecfc9d86acafd13d872725e73a"
-  integrity sha512-u1lO75V82E4REeu0Pt3RE1Kg2CdtUoMgMnyR02cUxdWnoTBpdSlwvz2X2U0VEGW2oYzeJJYp0N0H1sgSRnv8vg==
+  version "2.856.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.856.0.tgz#a82719952949bdfda73832b465321a49577cf784"
+  integrity sha512-B9uRDhIxlmaz5GIDC2Q+OgVMnsPFzuu1HknWedpTre6ARG+Ukm8KQ3VA5MhsBtSm61X5u1Uwk5AlEv+feLaShA==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -1685,7 +1685,7 @@ events@1.1.1:
   resolved "https://registry.yarnpkg.com/events/-/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
   integrity sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=
 
-events@^3.0.0, events@^3.1.0:
+events@^3.0.0, events@^3.2.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
@@ -2159,14 +2159,14 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.6.tgz#ff040b2b0853b23c3d31027523706f1885d76bee"
   integrity sha512-nTnJ528pbqxYanhpDYsi4Rd8MAeaBA67+RZ10CM1m3bTAVFEDcd5AuA4a6W5YkGZ1iNXHzZz8T6TBKLeBuNriQ==
 
-graphology-gexf@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/graphology-gexf/-/graphology-gexf-0.5.1.tgz#fba4121e867d604fbca2149b7c404b7d514c6c07"
-  integrity sha512-OXfeJ0Dmem+eKul1DzfYAOkUv1MLsR2ilxKga2zBX/v0g23efggWWSFjUrxCFiueufvd00LbanteXLBsTxk3ow==
+graphology-gexf@^0.7.4:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/graphology-gexf/-/graphology-gexf-0.7.4.tgz#822fdb7324e21eff6c7bccea711428390ccae893"
+  integrity sha512-s1qhPvf6FbVyaoaXGOqh0b32dTHFVhDRWW5lPAm3+9SDzVNG2SMzApf+icaIFedhCX4lvwMBGdanw28DCKHQQA==
   dependencies:
-    graphology-utils "^1.5.0"
+    graphology-utils "^2.0.0"
     xml-writer "^1.7.0"
-    xmldom "^0.2.1"
+    xmldom "^0.4.0"
 
 graphology-indices@^0.13.3:
   version "0.13.3"
@@ -2176,21 +2176,19 @@ graphology-indices@^0.13.3:
     graphology-utils "^1.7.0"
     mnemonist "^0.38.0"
 
-graphology-layout-forceatlas2@^0.4.3:
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/graphology-layout-forceatlas2/-/graphology-layout-forceatlas2-0.4.4.tgz#69b63d65afb9210d8a6df02693eab6c50520a96a"
-  integrity sha512-svecyhKBLbPvwyRBWtitzaZVuGgA0I1Fju7Osq+Z3G8W8d8FamD1rIxXrYgTlUL4Mw0PRsgEk87DfrS0nkaAMA==
+graphology-layout-forceatlas2@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/graphology-layout-forceatlas2/-/graphology-layout-forceatlas2-0.6.0.tgz#0329c14ccd037be3896ee1409831e8884cee8e8f"
+  integrity sha512-gJ7tOYtMVEMuQQgsTnAExJ7eJf2+Ry2SrPCuh6ZHyM00iqx7jf7fH9j3aX2heShAM3tIl/+yH6MNaSYLoJBATw==
   dependencies:
-    graphology-types "^0.16.0"
-    graphology-utils "^1.7.0"
+    graphology-utils "^1.8.0"
 
-graphology-layout@^0.3.0:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/graphology-layout/-/graphology-layout-0.3.2.tgz#9ea4a447b7e39500f5e9745e4c684412436d7e74"
-  integrity sha512-fsmqTpPQS81qrXcWWb+QjP/GquGwN6XnF1MVsYf2nGQ8WHSMQuNiDZZ4hn0VOORpNVXxvhEKhM/FwAEn6SBrpw==
+graphology-layout@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/graphology-layout/-/graphology-layout-0.4.0.tgz#2e9049b92a64a8de6f140a52e9c734a443fa5d8e"
+  integrity sha512-mfb6HFCeZA0ezLkS16weUvwCKMhf5qI2Feyog/gSr3WtoqT9Xfr+xoRmrUrRRG1ICHZRP08FOSSj3Bf4TP4unw==
   dependencies:
-    graphology-types "^0.18.0"
-    graphology-utils "^1.7.0"
+    graphology-utils "^1.8.0"
     lodash "^4.17.20"
     pandemonium "^1.5.0"
 
@@ -2205,7 +2203,7 @@ graphology-metrics@1.13.0:
     lodash "^4.17.11"
     mnemonist "^0.34.0"
 
-graphology-metrics@^1.13.0:
+graphology-metrics@^1.14.2:
   version "1.14.2"
   resolved "https://registry.yarnpkg.com/graphology-metrics/-/graphology-metrics-1.14.2.tgz#443bf6050ccf4d66f280c377268895a2c7473ee3"
   integrity sha512-MWVoIRKgSbiGLGqZuPoVHYqOjwMkSUoknrCuOIC3w0G70JSyfqcTbjqLaZ1l6PeNvZPLSFKNg5U2fS3V4HMKyQ==
@@ -2230,12 +2228,12 @@ graphology-types@^0.16.0:
   resolved "https://registry.yarnpkg.com/graphology-types/-/graphology-types-0.16.0.tgz#37896c4c82117a247c97a16219629215f1a596b4"
   integrity sha512-iBGyPuMHlmHdXaB0cu/vllkPJ3myf063ZICY90zDxYQrJYZ3Dm4h2+dLM3Kof+CVJzM4HGg96ZFZ8HS6C7LgCQ==
 
-graphology-types@^0.18.0:
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/graphology-types/-/graphology-types-0.18.0.tgz#1d470e1c342efda910bba27b2e6656a60ae47c8b"
-  integrity sha512-OXd5BSWQ9Q2ePA8dvh02vI9y87r++rPRR2gntL8KKbME60g2C0frOFBFVTL0WHyJs3sNpHeZHOzIvpvpzZNPUg==
+graphology-types@^0.19.2:
+  version "0.19.2"
+  resolved "https://registry.yarnpkg.com/graphology-types/-/graphology-types-0.19.2.tgz#bb5577e1883b8b23af97f1ba04cb29191b18e502"
+  integrity sha512-1JO26jHK4rqaXq9kBxH5dOc2AIrOxMA382m+W6ccJMLKoj/NYXVEB0I8nlIRUKNxM+oUsL0GjxNJZAbJp2WNwg==
 
-graphology-utils@^1.4.0, graphology-utils@^1.5.0, graphology-utils@^1.6.1, graphology-utils@^1.7.0, graphology-utils@^1.8.0:
+graphology-utils@^1.4.0, graphology-utils@^1.6.1, graphology-utils@^1.7.0, graphology-utils@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/graphology-utils/-/graphology-utils-1.8.0.tgz#41315c468656e2a3e028a76468bbc2fbe42b0145"
   integrity sha512-Pa7SW30OMm8fVtyH49b3GJ/uxlMHGfXly50wIhlcc7ZoX9ahZa7sPBz+obo4WZClrRV6wh3tIu0GJoI42eao1A==
@@ -2245,13 +2243,12 @@ graphology-utils@^2.0.0:
   resolved "https://registry.yarnpkg.com/graphology-utils/-/graphology-utils-2.0.0.tgz#2d55db10655a58d24244fa78db2fcacecd24dc09"
   integrity sha512-Gu+pEihf/8LxlgiRyNkMLswbqKH7Ohtt74WDUS6IZVIN3aWVZuLwpsHP5TJJIOYwnRhYTSPOedNlPKdeGJKUiA==
 
-graphology@^0.17.1:
-  version "0.17.1"
-  resolved "https://registry.yarnpkg.com/graphology/-/graphology-0.17.1.tgz#294f0cbc677ec5ca18d3ba4914d6d0682fa29505"
-  integrity sha512-3cUHg0OzCnLMK+R1sL678afUjtsoQcyq8XU0MmotlpsTqMjq5YrbWBcoXSth3kexRk+ynTiGw6t+ph49zvpQ+g==
+graphology@^0.19.3:
+  version "0.19.3"
+  resolved "https://registry.yarnpkg.com/graphology/-/graphology-0.19.3.tgz#5cdec93cedb767e81892915c168c28a7c2376317"
+  integrity sha512-71ExGezjHiiEyDpV+KCkqsOvMIorbVCe4PMBolIqgxAjj6Z/6Bb7lX6Dh6QuUkTTQe9gA3aay9Mzwbie1MWDmA==
   dependencies:
-    events "^3.1.0"
-    graphology-types "^0.16.0"
+    events "^3.2.0"
     obliterator "^1.6.1"
 
 handle-thing@^2.0.0:
@@ -5050,10 +5047,10 @@ xmlbuilder@~9.0.1:
   resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-9.0.7.tgz#132ee63d2ec5565c557e20f4c22df9aca686b10d"
   integrity sha1-Ey7mPS7FVlxVfiD0wi35rKaGsQ0=
 
-xmldom@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.2.1.tgz#cac9465066f161e1c3302793ea4dbe59c518274f"
-  integrity sha512-kXXiYvmblIgEemGeB75y97FyaZavx6SQhGppLw5TKWAD2Wd0KAly0g23eVLh17YcpxZpnFym1Qk/eaRjy1APPg==
+xmldom@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.4.0.tgz#8771e482a333af44587e30ce026f0998c23f3830"
+  integrity sha512-2E93k08T30Ugs+34HBSTQLVtpi6mCddaY8uO+pMNk1pqSjV5vElzn4mmh6KLxN3hki8rNcHSYzILoh3TEWORvA==
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"
