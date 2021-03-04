@@ -1,12 +1,9 @@
 import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
 import pako from 'pako';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.min';
 import 'select2/dist/js/select2.min';
 import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
-import $ from 'jquery';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import Color from 'color';
