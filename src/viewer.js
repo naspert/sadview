@@ -24,9 +24,9 @@ let maxWeight = 1;
 const baseUrl = window.location.origin + '/viewer/graph-layout-data/';
 const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
-function formatAttributes(attr_data, attr_func) {
-    const user_details = attr_func(attr_data['user_details']);
-    const name = attr_func(attr_data['name']);
+function formatAttributes(attr_data) {
+    const user_details = attr_data['user_details'];
+    const name = attr_data['name'];
     return `<h2>${name}</h2><p>${user_details}</p>`;
 }
 
@@ -59,8 +59,7 @@ function displayUserInfo(node, attr, clusterInfo) {
     if (node === "")
         return;
     const infoDisp = $('#userinfo-disp');
-    infoDisp[0].innerHTML = formatAttributes(attr,
-        escapeAttr ? x => JSON.parse(x): x => x);
+    infoDisp[0].innerHTML = formatAttributes(attr);
     displayUserHashtags(node, attr, clusterInfo);
     displayCommunityInfo(node, attr, clusterInfo);
     displayCommunityVoc(node, attr, clusterInfo);
