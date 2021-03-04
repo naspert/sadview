@@ -1,6 +1,5 @@
 import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
-import ky from 'ky';
 import pako from 'pako';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min';
@@ -12,6 +11,21 @@ import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import Color from 'color';
 
+/* global vars */
+let highlightedNodes = new Set();
+let highlightedEdges = new Set();
+let hightlightedHashtagNode = new Set();
+let savedCoords = {};
+let displayNodeInfo = displayUserInfo;
+let selectedNode = "";
+let maxHop = 5;
+let currMaxHop = 5;
+let slider;
+let maxWeight = 1;
+
+// API endpoint used to fetch JSON data
+const baseUrl = window.location.origin + '/viewer/graph-layout-data/';
+const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
 function formatAttributes(attr_data, attr_func) {
     const user_details = attr_func(attr_data['user_details']);
@@ -44,18 +58,18 @@ function highlightNodes(graph, hashtag, renderer) {
 }
 
 
-function displayUserInfo(node, attr, clusterInfo, escapeAttr) {
+function displayUserInfo(node, attr, clusterInfo) {
     if (node === "")
         return;
     const infoDisp = $('#userinfo-disp');
     infoDisp[0].innerHTML = formatAttributes(attr,
         escapeAttr ? x => JSON.parse(x): x => x);
-    displayUserHashtags(node, attr, clusterInfo, escapeAttr);
-    displayCommunityInfo(node, attr, clusterInfo, escapeAttr);
-    displayCommunityVoc(node, attr, clusterInfo, escapeAttr);
+    displayUserHashtags(node, attr, clusterInfo);
+    displayCommunityInfo(node, attr, clusterInfo);
+    displayCommunityVoc(node, attr, clusterInfo);
 }
 
-function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
+function displayUserHashtags(node, attr, clusterInfo) {
     if (node === "")
         return;
     import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
@@ -67,7 +81,7 @@ function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
     });
 }
 
-function displayCommunityInfo(node, attr, clusterInfo, escapeAttr) {
+function displayCommunityInfo(node, attr, clusterInfo) {
     if (node === "")
         return;
     const infoDisp = $('#comminfo-disp');
@@ -75,7 +89,7 @@ function displayCommunityInfo(node, attr, clusterInfo, escapeAttr) {
     infoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
 }
 
-function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
+function displayCommunityVoc(node, attr, clusterInfo) {
     if (node === "")
         return;
     const community = clusterInfo[attr.community];
@@ -104,32 +118,72 @@ function circlePackLayout(graphObj) {
     });
 }
 
-function renderGraph(filename, clusterFile, escapeAttr) {
+const nodeReducer = (node, data) => {
+    if (highlightedNodes.has(node))
+        return {...data, color: '#f00', zIndex: 1};
+    if (hightlightedHashtagNode.has(node))
+        return {...data, color: '#0f0', zIndex: 1};
+    if (data.spikyball_hop > currMaxHop) {
+        const delta = data.spikyball_hop - currMaxHop;
+        const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
+        const newColor = Color(data.color).darken(1.5*delta/maxHop).desaturate(1.5*delta/maxHop).alpha(alpha);
+
+        return {...data, color: newColor.rgb().string(), zIndex: 0};
+    }
+    return data;
+};
+
+const edgeReducer = (edge, data) => {
+    if (highlightedEdges.has(edge))
+        return {...data, color: '#ff0000', zIndex: 1};
+    const weight = data.weight;
+    const color = Color('#111').alpha(0.1 + 0.7*weight*(currMaxHop+1)/(maxWeight*(maxHop+1)));
+    return {...data, color: color.rgb().string()};
+};
+
+const drawCustomLabel = (context, data, settings) => {
+    const size = settings.labelSize,
+        font = settings.labelFont,
+        weight = settings.labelWeight;
+
+    context.fillStyle = '#333';
+    context.font = `${weight} ${size}px ${font}`;
+
+    context.fillText(
+        data.label,
+        data.x + data.size + 3,
+        data.y + size / 3
+    );
+};
+
+function renderGraph(graphUUID) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
-    let clusterInfo;
-    $.getJSON(baseUrl +'/' + clusterFile, function (data) {
-       clusterInfo = data;
-    });
+    let clusterInfo;// = graphLayoutData.clusterInfo;
+
 
     $('#userhashtags-disp').empty();
     $('#userinfo-disp').empty();
     $('#wordcloud-disp').empty();
     $('#comminfo-disp').empty();
     selectedNode = ""
-    console.log('Rendering ' + filename);
+    console.log('Rendering...');
     if (window.graph)
         window.graph.clear();
     // show spinner
     layoutControls.hide();
     spinDisp.show();
 
-
-    ky.get(baseUrl + '/' + filename)
-        .then(res => res.arrayBuffer())
+    fetch(baseUrl +'/' + graphUUID)
+        .then(response => response.json())
+        //.then(j => JSON.parse(j))
+        .then((d) => {
+            clusterInfo = d.clusterInfo;
+            return new Uint8Array(window.atob(d.compressedGraph).split('').map(c => c.charCodeAt(0)))
+        })
+        //.then(res => res.arrayBuffer())
         .then(ab => pako.inflate(ab, {to:'string'}))
         .then(r => {
-            console.assert(filename.endsWith('json.gz'));
             return JSON.parse(r);
         })
         .then(graph_data => {
@@ -235,116 +289,18 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             window.camera = renderer.camera;
             spinDisp.hide();
             layoutControls.show();
-    });
+        });
 }
 
-let highlightedNodes = new Set();
-let highlightedEdges = new Set();
-let hightlightedHashtagNode = new Set();
-let loadedFile;
-let escapeNeeded;
-let clusterFile;
-let savedCoords = {};
-let displayNodeInfo = displayUserInfo;
-let selectedNode = "";
-let maxHop = 5;
-let currMaxHop = 5;
-let slider;
-let maxWeight = 1;
-
-const nodeReducer = (node, data) => {
-    if (highlightedNodes.has(node))
-        return {...data, color: '#f00', zIndex: 1};
-    if (hightlightedHashtagNode.has(node))
-        return {...data, color: '#0f0', zIndex: 1};
-    if (data.spikyball_hop > currMaxHop) {
-        const delta = data.spikyball_hop - currMaxHop;
-        const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
-        const newColor = Color(data.color).darken(1.5*delta/maxHop).desaturate(1.5*delta/maxHop).alpha(alpha);
-
-        return {...data, color: newColor.rgb().string(), zIndex: 0};
-    }
-    return data;
-};
-
-const edgeReducer = (edge, data) => {
-    if (highlightedEdges.has(edge))
-        return {...data, color: '#ff0000', zIndex: 1};
-    const weight = data.weight;
-    const color = Color('#111').alpha(0.1 + 0.7*weight*(currMaxHop+1)/(maxWeight*(maxHop+1)));
-    return {...data, color: color.rgb().string()};
-};
-
-const drawCustomLabel = (context, data, settings) => {
-    const size = settings.labelSize,
-        font = settings.labelFont,
-        weight = settings.labelWeight;
-
-    context.fillStyle = '#333';
-    context.font = `${weight} ${size}px ${font}`;
-
-    context.fillText(
-        data.label,
-        data.x + data.size + 3,
-        data.y + size / 3
-    );
-};
-
-const baseUrl = 'https://os.unil.cloud.switch.ch/lts2-sad/twitter/results';
-let dataDirs = [];
-$.getJSON(baseUrl +'/' + 'index.json', function (data) {
-    dataDirs = data;
-
-    // populate dropdown
-    const dropdown = $('#graph-selector');
-    dropdown.empty();
-    $.each(dataDirs, function(key, value) {
-        dropdown.append($('<a class="dropdown-item"></a>')
-            .attr('data-graph', value.graph)
-            .attr('id', value.label)
-            .attr('data-label', value.label)
-            .attr('data-escape', value.escape)
-            .attr('data-cluster', value.clusterInfo)
-            .text(value.label));
-    });
-
-    // register click handler
-    $('.dropdown-menu').click((event) => {
-        const menu_clicked = $(event.target);
-        console.log('Clicked menu: ' + menu_clicked.data('label'));
-        if (menu_clicked.hasClass('active')) // nothing to do
-            return;
-
-        dropdown.children().each(function() {
-            $(this).removeClass('active');
-        });
-        const item = $('#' + menu_clicked.data('label'));
-        item.addClass('active');
-        loadedFile = item.data('graph');
-        clusterFile = item.data('cluster');
-        escapeNeeded = item.data('escape');
-        renderGraph(loadedFile, clusterFile, escapeNeeded);
-        $('#fa2').parent().addClass('active');
-        $('#circlepack').parent().removeClass('active');
-        $('#degree').parent().addClass('active');
-        $('#indegree').parent().removeClass('active');
-        $('#outdegree').parent().removeClass('active');
-    });
-    // load default graph
-    $('#' + dataDirs[0].label).addClass('active');
-    loadedFile = dataDirs[0].graph;
-    clusterFile = dataDirs[0].clusterInfo;
-    escapeNeeded = dataDirs[0].escape
-    renderGraph(loadedFile, clusterFile, escapeNeeded);
-});
-
+const uuidGraph = window.location.toString().match(uuidRegex)[0]
+renderGraph(uuidGraph);
 
 $('#fa2').change((event) => {
-   console.log('FA2 layout -> reload coords');
-   window.graph.forEachNode(function(key, attr) {
-       window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
-       window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
-   });
+    console.log('FA2 layout -> reload coords');
+    window.graph.forEachNode(function(key, attr) {
+        window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
+        window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
+    });
 });
 
 $('#circlepack').change((event) => {
@@ -377,8 +333,3 @@ $('#outdegree').change((event) => {
         circlePackLayout(window.graph);
     }
 });
-
-
-
-
-

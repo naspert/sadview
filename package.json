@@ -3,22 +3,24 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publishConfig": {
     "@imi-sad:registry":"https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
 
   "files": [
     "static/index.html",
+    "static/viewer.html",
     "src/index.js",
+    "src/viewer.js",
     "src/cluster.js",
     "src/circlepack.js",
     "src/fsGraph.js",
     "src/layout.js",
     "src/layoutCore.js",
     "src/worker.js",
-    "src/plot_community.js",
-    "src/plot_hashtags.js",
+    "src/plotCommunity.js",
+    "src/plotHashtags.js",
     "src/s3Graph.js"
   ],
   "scripts": {
