@@ -1,12 +1,15 @@
 import './publicPath';
-import graph from 'graphology';
-import WebGLRenderer from 'sigma/renderers/webgl';
-import pako from 'pako';
+import $ from 'jquery';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.min';
 import 'select2/dist/js/select2.min';
 import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
+import graph from 'graphology';
+import WebGLRenderer from 'sigma/renderers/webgl';
+import pako from 'pako';
 import Color from 'color';
 
 /* global vars */
@@ -20,9 +23,17 @@ let maxHop = 5;
 let currMaxHop = 5;
 let slider;
 let maxWeight = 1;
-
+let devEnv = false;
+let uuidGraph = "";
+if (process.env.NODE_ENV !== 'production') {
+    console.log('Looks like we are in development mode!');
+    devEnv = true;
+}
 // API endpoint used to fetch JSON data
-const baseUrl = window.location.origin + '/viewer/graph-layout-data/';
+let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
+if (devEnv) {
+    baseUrl = "http://localhost:8000/viewer/graph-layout-data";
+}
 const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
 function formatAttributes(attr_data) {
@@ -290,9 +301,13 @@ function renderGraph(graphUUID) {
         });
 }
 
+
 // Maybe use a hidden element in the template and retrieve the uuid using it
 // instead of parsing url ?
-const uuidGraph = window.location.toString().match(uuidRegex)[0];
+if (devEnv)
+    uuidGraph = "70892cdb-0cd9-4f99-b455-c6022372666f";
+else
+    uuidGraph = window.location.toString().match(uuidRegex)[0]
 renderGraph(uuidGraph);
 window.onload = function() {
     console.log('onload start...');
