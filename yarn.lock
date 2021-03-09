@@ -2213,6 +2213,13 @@ graphology-metrics@^1.14.2:
     lodash "^4.17.20"
     mnemonist "^0.38.0"
 
+graphology-operators@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/graphology-operators/-/graphology-operators-1.4.0.tgz#a5927d5f424ea48fe2e764c79d95547200a4b85f"
+  integrity sha512-29GW/YCImmYUhLo1ykCc0zPnPJm24jGhpuTpcJYH1PcITlXBb4+B/ggmfiryx+Dth8CVoVmUgwmBvqi4MLc4tA==
+  dependencies:
+    graphology-utils "^2.0.0"
+
 graphology-shortest-path@^1.3.1, graphology-shortest-path@^1.4.0:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/graphology-shortest-path/-/graphology-shortest-path-1.4.1.tgz#da4aec48e2f7c35f7d2ce35e1b94f42e85bb0f08"

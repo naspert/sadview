@@ -3,11 +3,10 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "publishConfig": {
-    "@imi-sad:registry":"https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
+    "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
-
   "files": [
     "static/index.html",
     "static/viewer.html",
@@ -65,7 +64,7 @@
     "graphology-layout": "^0.4.0",
     "graphology-layout-forceatlas2": "^0.6.0",
     "graphology-metrics": "^1.14.2",
-    "graphology-utils": "^2.0.0",
+    "graphology-operators": "^1.4.0",
     "graphology-types": "^0.19.2",
     "jquery": "3.5.1",
     "ky": "^0.19.1",
