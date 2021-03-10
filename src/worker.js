@@ -11,7 +11,7 @@ const mongodbUrl = process.env.MONGODB_URL;
 const log = require('simple-node-logger').createSimpleFileLogger(path.join(process.env.LOG_DIR, 'sadview-worker.log'));
 let db;
 
-celeryWorker.register("graph_layout",  async (collect_run_uuid) => {
+celeryWorker.register(process.env.CELERY_LAYOUT_TASK_NAME,  async (collect_run_uuid) => {
     log.info("Performing layout for run ", collect_run_uuid);
     const result = await db.collection("taskmeta_collection").findOne({_id: collect_run_uuid})
         .then((b) => {
@@ -32,6 +32,7 @@ celeryWorker.register("graph_layout",  async (collect_run_uuid) => {
                 }
             });
 });
+
 
 // Initialize connection once
 MongoClient.connect(mongodbUrl, function(err, client) {
