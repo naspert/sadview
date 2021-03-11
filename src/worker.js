@@ -11,26 +11,20 @@ const mongodbUrl = process.env.MONGODB_URL;
 const log = require('simple-node-logger').createSimpleFileLogger(path.join(process.env.LOG_DIR, 'sadview-worker.log'));
 let db;
 
-celeryWorker.register(process.env.CELERY_LAYOUT_TASK_NAME,  async (collect_run_uuid) => {
-    log.info("Performing layout for run ", collect_run_uuid);
-    const result = await db.collection("taskmeta_collection").findOne({_id: collect_run_uuid})
-        .then((b) => {
-            const graph_str = pako.inflate(b.result.graph.buffer, {to: 'string'});
-            const g = new DirectedGraph.from(gexf.parse(graph, graph_str));
-            log.info("Graph from ", collect_run_uuid, " has ", g.order, " nodes, and ", g.size," edges.")
-            const layout_result =  computeLayout(g, "FA2", 200, {}, log);
-            let result = {graph: layout_result.graph, clusterInfo:layout_result.clusterInfo}
-            result.compressedGraph = Buffer.from(layout_result.compressedGraph).toString("base64");
-            log.info("Layout for ", collect_run_uuid, " completed.");
-            return result;
-        });
+celeryWorker.register(process.env.CELERY_LAYOUT_TASK_NAME,  async (collectResult) => {
+    let collectRunUUID = collectResult._id;
+    log.info("Performing layout for run ", collectRunUUID);
+    const graphStr = pako.inflate(new Buffer(collectResult.graph, 'base64'), {to: 'string'});
+    const g = new DirectedGraph.from(gexf.parse(graph, graphStr));
+    log.info("Graph from ", collectRunUUID, " has ", g.order, " nodes, and ", g.size," edges.")
+    const layoutResult =  computeLayout(g, "FA2", collectResult.fa2NumIter, collectResult.clusterLex, log);
+    let result = {graph: layoutResult.graph, clusterInfo:layoutResult.clusterInfo}
+    result.compressedGraph = Buffer.from(layoutResult.compressedGraph).toString("base64");
+    collectResult.graphLayout = result;
+    log.info("Layout for ", collectRunUUID, " completed.");
+
     return await db.collection("taskmeta_collection")
-        .updateOne({_id: collect_run_uuid},
-            {
-                $set: {
-                    "result.graph_layout": result
-                }
-            });
+        .insert(collectResult);
 });
 
 
