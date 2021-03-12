@@ -24,7 +24,13 @@ celeryWorker.register(process.env.CELERY_LAYOUT_TASK_NAME,  async (collectResult
     log.info("Layout for ", collectRunUUID, " completed.");
 
     return await db.collection("taskmeta_collection")
-        .insert(collectResult);
+        .updateOne({_id: collectRunUUID},
+            {
+                $set: {
+                    "result.graphLayout": result
+                }
+            });
+
 });
 
 
