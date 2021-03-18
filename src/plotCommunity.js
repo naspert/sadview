@@ -14,14 +14,16 @@ const d3 = Object.assign(
   //  request
 )
 
-export function plotCommunityWordcloud(commInfo) {
+export function plotCommunityWordcloud(commInfo, iramuteqLex=true) {
     if (commInfo.lexical === null)
         return;
     const words = Object.entries(commInfo.lexical)
-        .sort(function(a,b) {return b[1]- a[1]})
+        .sort(function(a,b) {return iramuteqLex ? b[1]- a[1]:a[1][0] - b[1][0]})
         .slice(0, 20) // take only 50 first words
         .map((p) => {
-            return {text:p[0], size:Math.round(2 + 10*Math.log(p[1]))};
+            return {
+                text:p[0],
+                size: iramuteqLex ? Math.round(2 + 10*Math.log(p[1])):p[1][1]};
         });
     console.log("Community lex has ", Object.keys(words).length, " words");
     const margin = {top: 10, right: 10, bottom: 10, left: 10},

@@ -104,7 +104,7 @@ function displayCommunityVoc(node, attr, clusterInfo) {
     import(/* webpackChunkName: "plotCommunity" */'./plotCommunity').then(module => {
         const plotCommunityWordcloud = module.plotCommunityWordcloud;
         $('#wordcloud-disp').empty();
-        plotCommunityWordcloud(community);
+        plotCommunityWordcloud(community, false);
     });
 }
 
