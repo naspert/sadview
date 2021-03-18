@@ -46,7 +46,7 @@ function computeFa2Layout(graphObj, numIter) {
 
 }
 
-function computeLayout(graphObj, methodName, numIter, clusterLex, logger=sn_log.createSimpleLogger()) {
+function computeLayout(graphObj, methodName, numIter, clusterLex, iramuteqLex=true, logger=sn_log.createSimpleLogger()) {
 
     console.time('Counting communities / max weight');
     const numCommunities = graphObj.nodes()
@@ -112,7 +112,7 @@ function computeLayout(graphObj, methodName, numIter, clusterLex, logger=sn_log.
     console.timeEnd('Edge Attributes');
 
     console.time('Clusters info');
-    const clusterInfo = cluster.buildClusterInfo(graphObj, clusterLex);
+    const clusterInfo = cluster.buildClusterInfo(graphObj, clusterLex, iramuteqLex);
     console.timeEnd('Clusters info');
 
     console.time('Layout');
