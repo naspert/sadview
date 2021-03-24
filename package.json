@@ -3,7 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "publishConfig": {
     "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
@@ -50,6 +50,7 @@
     "@ttskch/select2-bootstrap4-theme": "^1.4.0",
     "argparse": "^2.0.1",
     "aws-sdk": "^2.756.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.4.1",
     "bootstrap-slider": "^11.0.2",

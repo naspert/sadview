@@ -5,6 +5,8 @@ const DirectedGraph = require('graphology').DirectedGraph;
 const gexf = require('graphology-gexf');
 const pako = require('pako');
 const celery = require('celery-node');
+const axios = require('axios');
+const combineURLs = require('axios/lib/helpers/combineURLs');
 const celeryWorker = celery.createWorker(process.env.CELERY_BROKER, process.env.CELERY_BACKEND, process.env.CELERY_QUEUE_NAME);
 const MongoClient = require('mongodb').MongoClient;
 const mongodbUrl = process.env.MONGODB_URL;
@@ -23,14 +25,19 @@ celeryWorker.register(process.env.CELERY_LAYOUT_TASK_NAME,  async (collectResult
     collectResult.graphLayout = result;
     log.info("Layout for ", collectRunUUID, " completed.");
 
-    return await db.collection("taskmeta_collection")
+    const updateRes =  await db.collection("taskmeta_collection")
         .updateOne({_id: collectRunUUID},
             {
                 $set: {
                     "result.graphLayout": result
                 }
             });
+    const absCompletionUrl = combineURLs(process.env.INSTANCE_URL, collectResult.completion_url);
+    log.info("Calling completion callback at ", absCompletionUrl, " with token ", collectResult.token);
+    const res = await axios.post(absCompletionUrl, {token: collectResult.token.toString()})
+    log.info("Completion callback status code: ", res.status, " message: ", res.statusText);
 
+    return { _id: collectRunUUID, updateRes: updateRes , callbackResult: {status: res.status, statusText: res.statusText}}
 });
 
 
