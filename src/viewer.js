@@ -32,7 +32,7 @@ if (process.env.NODE_ENV !== 'production') {
 // API endpoint used to fetch JSON data
 let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
 if (devEnv) {
-    baseUrl = "http://localhost:8000/viewer/graph-layout-data";
+    baseUrl = "http://localhost:8000/viewer/graph-layout-data/";
 }
 const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
@@ -183,7 +183,7 @@ function renderGraph(graphUUID) {
     layoutControls.hide();
     spinDisp.show();
 
-    fetch(baseUrl +'/' + graphUUID)
+    fetch(baseUrl + graphUUID)
         .then(response => response.json())
         //.then(j => JSON.parse(j))
         .then((d) => {
