@@ -39,7 +39,8 @@ const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-
 function formatAttributes(attr_data) {
     const user_details = attr_data['user_details'];
     const name = attr_data['name'];
-    return `<h2>${name}</h2><p>${user_details}</p>`;
+    const screen_name = attr_data['label'];
+    return `<h2>${name}</h2><p>${user_details}</p><br /><a href="https://twitter.com/${screen_name}" target="_blank">Profile</a>`;
 }
 
 function formatCommunityInfo(commInfo,commId) {
