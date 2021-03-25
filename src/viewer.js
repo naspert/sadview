@@ -40,7 +40,7 @@ function formatAttributes(attr_data) {
     const user_details = attr_data['user_details'];
     const name = attr_data['name'];
     const screen_name = attr_data['label'];
-    return `<h2>${name}</h2><p>${user_details}</p><br /><a href="https://twitter.com/${screen_name}" target="_blank">Profile</a>`;
+    return `<h2><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a></h2><p>${user_details}</p>`;
 }
 
 function formatCommunityInfo(commInfo,commId) {
