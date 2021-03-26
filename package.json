@@ -3,7 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "publishConfig": {
     "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
@@ -69,7 +69,9 @@
     "graphology-types": "^0.19.2",
     "jquery": "3.5.1",
     "ky": "^0.19.1",
+    "moment": "^2.29.1",
     "mongodb": "^3.6.4",
+    "numeral": "^2.0.6",
     "pako": "^1.0.11",
     "plotly.js-basic-dist-min": "^1.54.1",
     "popper.js": "^1.16.1",

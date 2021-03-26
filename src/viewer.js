@@ -11,6 +11,8 @@ import graph from 'graphology';
 import WebGLRenderer from 'sigma/renderers/webgl';
 import pako from 'pako';
 import Color from 'color';
+import moment from 'moment';
+import numeral from 'numeral';
 
 /* global vars */
 let highlightedNodes = new Set();
@@ -40,6 +42,24 @@ function formatAttributes(attr_data) {
     const user_details = attr_data['user_details'];
     const name = attr_data['name'];
     const screen_name = attr_data['label'];
+    if ('account_verified' in attr_data) { // extended user info available -> display
+        const verified = attr_data['account_verified'] ? '<i class="far fa-check-circle"></i>':'';
+        const creation_date = moment(attr_data['account_creation']).format('MMM YYYY');
+        const following = numeral(attr_data['account_following']).format('0a');
+        const followers = numeral(attr_data['account_followers']).format('0a');
+        const favs = numeral(attr_data['account_favourites']).format('0a');
+        const tweets = numeral(attr_data['account_statuses']).format('0a');
+        return `<div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a> ${verified}</h5>
+                    <p class="card-text">${user_details}</p>
+                    <div class="card-footer twitter-account-info">
+                    ${creation_date} - following ${following} - ${followers} followers<br />
+                    ${tweets} tweets - ${favs} favs
+                    </div>
+                </div>
+            </div>`;
+    }
     return `<h2><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a></h2><p>${user_details}</p>`;
 }
 
