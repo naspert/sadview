@@ -16,8 +16,9 @@ import numeral from 'numeral';
 
 /* global vars */
 let highlightedNodes = new Set();
+let highlightedNeighbors = new Set();
 let highlightedEdges = new Set();
-let hightlightedHashtagNode = new Set();
+let highlightedHashtagNode = new Set();
 let savedCoords = {};
 let displayNodeInfo = displayUserInfo;
 let selectedNode = "";
@@ -38,10 +39,23 @@ if (devEnv) {
 }
 const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
+function formatAttributesCompat(attr_data) {
+    const user_details = attr_data['user_details'];
+    const name = attr_data['name'];
+    const screen_name = attr_data['label'];
+    return `<div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a> ${verified}</h5>
+                    <p class="card-text">${user_details}</p>
+                </div>
+            </div>`;
+}
+
 function formatAttributes(attr_data) {
     const user_details = attr_data['user_details'];
     const name = attr_data['name'];
     const screen_name = attr_data['label'];
+
     if ('account_verified' in attr_data) { // extended user info available -> display
         const verified = attr_data['account_verified'] ? '<i class="far fa-check-circle"></i>':'';
         const creation_date = moment(attr_data['account_creation']).format('MMM YYYY');
@@ -59,8 +73,9 @@ function formatAttributes(attr_data) {
                     </div>
                 </div>
             </div>`;
+    } else { // compatibility mode
+        return formatAttributesCompat(attr_data);
     }
-    return `<h2><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a></h2><p>${user_details}</p>`;
 }
 
 function formatCommunityInfo(commInfo,commId) {
@@ -70,7 +85,7 @@ function formatCommunityInfo(commInfo,commId) {
 
 function highlightNode(node, graph, renderer) {
     console.log('Node selected: ' + node);
-    highlightedNodes = new Set(graph.neighbors(node));
+    highlightedNeighbors = new Set(graph.neighbors(node));
     highlightedNodes.add(node);
     highlightedEdges = new Set(graph.edges(node));
 
@@ -78,11 +93,11 @@ function highlightNode(node, graph, renderer) {
 }
 
 function highlightNodes(graph, hashtag, renderer) {
-    hightlightedHashtagNode.clear(); // flush on new hashtag select
+    highlightedHashtagNode.clear(); // flush on new hashtag select
     graph.forEachNode(n => {
         const nodeHashtags = graph.getNodeAttribute(n, 'all_hashtags');
         if (nodeHashtags.includes(hashtag))
-            hightlightedHashtagNode.add(n);
+            highlightedHashtagNode.add(n);
     });
     renderer.refresh();
 }
@@ -150,9 +165,11 @@ function circlePackLayout(graphObj) {
 const nodeReducer = (node, data) => {
     if (highlightedNodes.has(node))
         return {...data, color: '#f00', zIndex: 1};
-    if (hightlightedHashtagNode.has(node))
+    else if (highlightedNeighbors.has(node))
+        return {...data, color: '#700', zIndex: 1};
+    else if (highlightedHashtagNode.has(node))
         return {...data, color: '#0f0', zIndex: 1};
-    if (data.spikyball_hop > currMaxHop) {
+    else if (data.spikyball_hop > currMaxHop) {
         const delta = data.spikyball_hop - currMaxHop;
         const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
         const newColor = Color(data.color).darken(1.5*delta/maxHop).desaturate(1.5*delta/maxHop).alpha(alpha);
@@ -164,7 +181,7 @@ const nodeReducer = (node, data) => {
 
 const edgeReducer = (edge, data) => {
     if (highlightedEdges.has(edge))
-        return {...data, color: '#ff0000', zIndex: 1};
+        return {...data, color: '#500', zIndex: 1};
     const weight = data.weight;
     const color = Color('#111').alpha(0.1 + 0.7*weight*(currMaxHop+1)/(maxWeight*(maxHop+1)));
     return {...data, color: color.rgb().string()};
