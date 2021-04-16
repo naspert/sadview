@@ -45,7 +45,7 @@ function formatAttributesCompat(attr_data) {
     const screen_name = attr_data['label'];
     return `<div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a> ${verified}</h5>
+                    <h5 class="card-title"><a href="https://twitter.com/${screen_name}" target="_blank">${name}</a></h5>
                     <p class="card-text">${user_details}</p>
                 </div>
             </div>`;
