@@ -12,6 +12,7 @@ import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import Color from 'color';
 
+
 function formatAttributes(attr_data, attr_func) {
     const user_details = attr_func(attr_data['user_details']);
     const name = attr_func(attr_data['name']);
@@ -57,7 +58,7 @@ function displayUserInfo(node, attr, clusterInfo, escapeAttr) {
 function displayUserHashtags(node, attr, clusterInfo, escapeAttr) {
     if (node === "")
         return;
-    import(/* webpackChunkName: "plot_hashtags" */ './plot_hashtags').then(module => {
+    import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
         const plotHashtags = module.plotHashtags;
         const hashTags = attr['all_hashtags'] || '[]';
         $('#userhashtags-disp').empty();
@@ -78,7 +79,7 @@ function displayCommunityVoc(node, attr, clusterInfo, escapeAttr) {
     if (node === "")
         return;
     const community = clusterInfo[attr.community];
-    import(/* webpackChunkName: "plot_community" */'./plot_community').then(module => {
+    import(/* webpackChunkName: "plotCommunity" */'./plotCommunity').then(module => {
         const plotCommunityWordcloud = module.plotCommunityWordcloud;
         $('#wordcloud-disp').empty();
         plotCommunityWordcloud(community);
