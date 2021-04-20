@@ -80,7 +80,11 @@ function formatAttributes(attr_data) {
 
 function formatCommunityInfo(commInfo,commId) {
     const density = (commInfo.density*100).toFixed(1);
-    return `<h2>Community ${commId}</h2><p>Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p><p>Density: ${density} %</p>`;
+    return `<div class="card"><div class="card-body">
+                <h5 class="card-title">Community ${commId}</h5>
+                <p class="card-text">Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p>
+                <p class="card-text">Density: ${density} %</p>
+            </div></div>`;
 }
 
 function highlightNode(node, graph, renderer) {
