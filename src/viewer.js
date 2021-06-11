@@ -9,7 +9,7 @@ import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import graph from 'graphology';
 import {parse as gexfParse} from 'graphology-gexf/node';
-import WebGLRenderer from 'sigma/renderers/webgl';
+import Sigma from 'sigma';
 import pako from 'pako';
 import Color from 'color';
 import moment from 'moment';
@@ -243,7 +243,7 @@ function renderGraph(graphUUID) {
             const container = $('#sigma-container');
 
             maxWeight = g.getAttribute('max weight');
-            const renderer = new WebGLRenderer(g, container[0], {
+            const renderer = new Sigma(g, container[0], {
                 nodeReducer,
                 edgeReducer,
                 labelRenderer: drawCustomLabel,

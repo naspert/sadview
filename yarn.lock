@@ -4219,10 +4219,10 @@ shebang-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
   integrity sha1-2kL0l0DAtC2yypcoVxyxkMmO/qM=
 
-sigma@^2.0.0-alpha32:
-  version "2.0.0-beta3"
-  resolved "https://registry.yarnpkg.com/sigma/-/sigma-2.0.0-beta3.tgz#9935d0b08265d755c7562ee6a322ac317ce76c9e"
-  integrity sha512-Abv5dEnTSUvCLQNgyObXOu0/ePjQpX3xIjccqJ0Q6cQ+zQyGGULZ30fSIQK05vhycRRnfDNmRpbjZW6kTs3uAg==
+sigma@^2.0.0-beta5:
+  version "2.0.0-beta5"
+  resolved "https://registry.yarnpkg.com/sigma/-/sigma-2.0.0-beta5.tgz#419e8fd18620e511be4329a701481cde2d91c044"
+  integrity sha512-tbWSRETmdWl5TGuVmVvrhhBFVy3ln0JGQFpI9KxHk7OV6xA9n08+eyqbk/I+UB7Rbp565PoSkw9M+b4KDBX2zA==
   dependencies:
     "@yomguithereal/helpers" "^1.1.1"
     events "^3.3.0"
