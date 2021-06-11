@@ -8,6 +8,7 @@ import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import graph from 'graphology';
+import {parse as gexfParse} from 'graphology-gexf/node';
 import WebGLRenderer from 'sigma/renderers/webgl';
 import pako from 'pako';
 import Color from 'color';
@@ -210,7 +211,7 @@ function renderGraph(graphUUID) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
     let clusterInfo;// = graphLayoutData.clusterInfo;
-
+    let isGexf = false;
 
     $('#userhashtags-disp').empty();
     $('#userinfo-disp').empty();
@@ -226,19 +227,21 @@ function renderGraph(graphUUID) {
 
     fetch(baseUrl + graphUUID)
         .then(response => response.json())
-        //.then(j => JSON.parse(j))
         .then((d) => {
+            isGexf = d.isGexf || false;
             clusterInfo = d.clusterInfo;
             return new Uint8Array(window.atob(d.compressedGraph).split('').map(c => c.charCodeAt(0)))
         })
         //.then(res => res.arrayBuffer())
         .then(ab => pako.inflate(ab, {to:'string'}))
         .then(r => {
-            return JSON.parse(r);
+            if (isGexf)
+                return gexfParse(graph, r);
+            return graph.from(JSON.parse(r));
         })
-        .then(graph_data => {
+        .then(g => {
             const container = $('#sigma-container');
-            const g = graph.from(graph_data);
+
             maxWeight = g.getAttribute('max weight');
             const renderer = new WebGLRenderer(g, container[0], {
                 nodeReducer,

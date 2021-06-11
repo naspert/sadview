@@ -3,7 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "publishConfig": {
     "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
@@ -28,7 +28,8 @@
     "devserve": "webpack-dev-server",
     "predeploy": "yarn run build --mode=production",
     "deploy": "gh-pages -b gh-pages -d public -o origin-gh",
-    "layout": "node src/layout.js"
+    "layout": "node src/layout.js",
+    "testfa2": "node src/testFA.js"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
@@ -54,7 +55,7 @@
     "body-parser": "^1.19.0",
     "bootstrap": "^4.4.1",
     "bootstrap-slider": "^11.0.2",
-    "celery-node": "^0.5.3",
+    "celery-node": "^0.5.4",
     "color": "^3.1.2",
     "d3": "^6.1.1",
     "d3-cloud": "^1.2.5",
