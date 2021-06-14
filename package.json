@@ -3,7 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publishConfig": {
     "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },

@@ -9,7 +9,7 @@ import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import graph from 'graphology';
 import {parse as gexfParse} from 'graphology-gexf/node';
-import Sigma from 'sigma';
+import Sigma from 'sigma/sigma';
 import pako from 'pako';
 import Color from 'color';
 import moment from 'moment';
