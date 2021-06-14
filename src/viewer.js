@@ -28,7 +28,7 @@ let currMaxHop = 5;
 let slider;
 let maxWeight = 1;
 let devEnv = false;
-let uuidGraph = "";
+let uuidGraph;
 if (process.env.NODE_ENV !== 'production') {
     console.log('Looks like we are in development mode!');
     devEnv = true;
@@ -118,7 +118,7 @@ function displayUserInfo(node, attr, clusterInfo) {
     displayCommunityVoc(node, attr, clusterInfo);
 }
 
-function displayUserHashtags(node, attr, clusterInfo) {
+function displayUserHashtags(node, attr, _) {
     if (node === "")
         return;
     import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
@@ -212,6 +212,7 @@ function renderGraph(graphUUID) {
     const layoutControls = $('#layout-controls');
     let clusterInfo;// = graphLayoutData.clusterInfo;
     let isGexf = false;
+    let maxDegree = 0;
 
     $('#userhashtags-disp').empty();
     $('#userinfo-disp').empty();
@@ -229,6 +230,11 @@ function renderGraph(graphUUID) {
         .then(response => response.json())
         .then((d) => {
             isGexf = d.isGexf || false;
+            if (isGexf) {
+                maxWeight = d.attributes.maxWeight;
+                maxHop = d.attributes.maxHop;
+                maxDegree = d.attributes.maxDegree;
+            }
             clusterInfo = d.clusterInfo;
             return new Uint8Array(window.atob(d.compressedGraph).split('').map(c => c.charCodeAt(0)))
         })
@@ -241,8 +247,12 @@ function renderGraph(graphUUID) {
         })
         .then(g => {
             const container = $('#sigma-container');
-
-            maxWeight = g.getAttribute('max weight');
+            if (!isGexf) {
+                maxWeight = g.getAttribute('max weight');
+                maxHop = g.getAttribute('max hop');
+            } else {
+                g.setAttribute('maxDegree', maxDegree);
+            }
             const renderer = new Sigma(g, container[0], {
                 nodeReducer,
                 edgeReducer,
@@ -258,7 +268,7 @@ function renderGraph(graphUUID) {
                 renderer.refresh();
             });
 
-            renderer.on('leaveNode', ({node}) => {
+            renderer.on('leaveNode', ({_}) => {
                 highlightedNodes.clear();
                 highlightedEdges.clear();
 
@@ -323,7 +333,6 @@ function renderGraph(graphUUID) {
                 highlightNodes(g, htag, renderer);
             });
 
-            maxHop = g.getAttribute('max hop');
             currMaxHop = maxHop;
 
             if (slider)
@@ -356,22 +365,22 @@ else
 renderGraph(uuidGraph);
 window.onload = function() {
     console.log('onload start...');
-    $('#fa2').change((event) => {
+    $('#fa2').change(() => {
         console.log('FA2 layout -> reload coords');
-        window.graph.forEachNode(function(key, attr) {
+        window.graph.forEachNode(function(key, _) {
             window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
             window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
         });
     });
 
-    $('#circlepack').change((event) => {
+    $('#circlepack').change((_) => {
         console.log('Circlepack layout');
         circlePackLayout(window.graph);
     });
 
 // degree display button group
 
-    $('#degree').change((event) => {
+    $('#degree').change((_) => {
         console.log('size <=> degree');
         computeNodesSize(window.graph, 'degree');
         if ($('#circlepack').parent().hasClass('active')) {
@@ -379,7 +388,7 @@ window.onload = function() {
         }
     });
 
-    $('#indegree').change((event) => {
+    $('#indegree').change((_) => {
         console.log('size <=> in-degree');
         computeNodesSize(window.graph, 'inDegree');
         if ($('#circlepack').parent().hasClass('active')) {
@@ -387,7 +396,7 @@ window.onload = function() {
         }
     });
 
-    $('#outdegree').change((event) => {
+    $('#outdegree').change((_) => {
         console.log('size <=> out-degree');
         computeNodesSize(window.graph, 'outDegree');
         if ($('#circlepack').parent().hasClass('active')) {
