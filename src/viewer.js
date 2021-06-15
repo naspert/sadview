@@ -151,7 +151,7 @@ function displayCommunityVoc(node, attr, clusterInfo) {
 
 function computeNodesSize(graph, attrName) {
     const MIN_NODE_SIZE = 3;
-    const MAX_NODE_SIZE = 30;
+    const MAX_NODE_SIZE = 15;
     const maxDegree = graph.getAttribute('maxDegree');
     graph.forEachNode((node) => {
         const degree = graph.getNodeAttribute(node, attrName);
@@ -247,11 +247,11 @@ function renderGraph(graphUUID) {
         })
         .then(g => {
             const container = $('#sigma-container');
-            if (!isGexf) {
+            if (isGexf) {
+                g.setAttribute('maxDegree', maxDegree);
+            } else {
                 maxWeight = g.getAttribute('max weight');
                 maxHop = g.getAttribute('max hop');
-            } else {
-                g.setAttribute('maxDegree', maxDegree);
             }
             const renderer = new Sigma(g, container[0], {
                 nodeReducer,
@@ -264,14 +264,12 @@ function renderGraph(graphUUID) {
                 highlightedNodes = new Set(g.neighbors(node));
                 highlightedNodes.add(node);
                 highlightedEdges = new Set(g.edges(node));
-
                 renderer.refresh();
             });
 
             renderer.on('leaveNode', ({_}) => {
                 highlightedNodes.clear();
                 highlightedEdges.clear();
-
                 renderer.refresh();
             });
 
