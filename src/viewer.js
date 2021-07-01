@@ -38,7 +38,6 @@ let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
 if (devEnv) {
     baseUrl = "http://localhost:8000/viewer/graph-layout-data/";
 }
-const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
 function formatAttributesCompat(attr_data) {
     const user_details = attr_data['user_details'];
@@ -213,6 +212,7 @@ function renderGraph(graphUUID) {
     let clusterInfo;// = graphLayoutData.clusterInfo;
     let isGexf = false;
     let maxDegree = 0;
+    let hashtagList = [];
 
     $('#userhashtags-disp').empty();
     $('#userinfo-disp').empty();
@@ -234,6 +234,7 @@ function renderGraph(graphUUID) {
                 maxWeight = d.attributes.maxWeight;
                 maxHop = d.attributes.maxHop;
                 maxDegree = d.attributes.maxDegree;
+                hashtagList = d.attributes.hashtags;
             }
             clusterInfo = d.clusterInfo;
             return new Uint8Array(window.atob(d.compressedGraph).split('').map(c => c.charCodeAt(0)))
@@ -252,6 +253,7 @@ function renderGraph(graphUUID) {
             } else {
                 maxWeight = g.getAttribute('max weight');
                 maxHop = g.getAttribute('max hop');
+                hashtagList = g.getAttribute('hashtags');
             }
             const renderer = new Sigma(g, container[0], {
                 nodeReducer,
@@ -310,7 +312,6 @@ function renderGraph(graphUUID) {
                 displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo);
             });
 
-            const hashtagList = g.getAttribute('hashtags');
             const hashtagSelectData = [{id: '', text: ''}].concat($.map(hashtagList, function (h) {
                 return {
                     id: h,
@@ -356,10 +357,13 @@ function renderGraph(graphUUID) {
 
 // Maybe use a hidden element in the template and retrieve the uuid using it
 // instead of parsing url ?
-if (devEnv)
+if (devEnv) {
     uuidGraph = "70892cdb-0cd9-4f99-b455-c6022372666f";
-else
-    uuidGraph = window.location.toString().match(uuidRegex)[0]
+}
+else {
+    const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
+    uuidGraph = window.location.toString().match(uuidRegex)[0];
+}
 renderGraph(uuidGraph);
 window.onload = function() {
     console.log('onload start...');
