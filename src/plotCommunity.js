@@ -26,19 +26,15 @@ export function plotCommunityWordcloud(commInfo, iramuteqLex=true) {
                 size: iramuteqLex ? Math.round(2 + 10*Math.log(p[1])):Math.round(2 + 10*Math.log(p[1][1]))};
         });
     console.log("Community lex has ", Object.keys(words).length, " words");
-    const margin = {top: 10, right: 10, bottom: 10, left: 10},
-        width = 450 - margin.left - margin.right,
-        height = 450 - margin.top - margin.bottom;
 
     const fillScale = scaleOrdinal(schemeTableau10);
     let svg = d3.select("#wordcloud-disp").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 300 300")
+        .classed("svg-content", true)
         .append("g")
-        .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+
     const layout = cloud()
-        .size([width, height])
         .words(words)
         .padding(5)
         .rotate(function() { return 0; })

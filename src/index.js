@@ -1,5 +1,5 @@
 import graph from 'graphology';
-import WebGLRenderer from 'sigma/renderers/webgl';
+import Sigma from 'sigma';
 import ky from 'ky';
 import pako from 'pako';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -136,7 +136,7 @@ function renderGraph(filename, clusterFile, escapeAttr) {
             const container = $('#sigma-container');
             const g = graph.from(graph_data);
             maxWeight = g.getAttribute('max weight');
-            const renderer = new WebGLRenderer(g, container[0], {
+            const renderer = new Sigma(g, container[0], {
                 nodeReducer,
                 edgeReducer,
                 labelRenderer: drawCustomLabel,

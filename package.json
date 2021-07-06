@@ -3,7 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.3.0",
+  "version": "0.4.4",
   "publishConfig": {
     "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
@@ -28,7 +28,8 @@
     "devserve": "webpack-dev-server",
     "predeploy": "yarn run build --mode=production",
     "deploy": "gh-pages -b gh-pages -d public -o origin-gh",
-    "layout": "node src/layout.js"
+    "layout": "node src/layout.js",
+    "server": "node src/server.js"
   },
   "homepage": "https://naspert.github.io/sadview",
   "devDependencies": {
@@ -54,14 +55,14 @@
     "body-parser": "^1.19.0",
     "bootstrap": "^4.4.1",
     "bootstrap-slider": "^11.0.2",
-    "celery-node": "^0.5.3",
+    "celery-node": "^0.5.4",
     "color": "^3.1.2",
     "d3": "^6.1.1",
     "d3-cloud": "^1.2.5",
     "express": "^4.17.1",
     "google-palette": "^1.1.0",
     "graphology": "^0.19.3",
-    "graphology-gexf": "^0.7.4",
+    "graphology-gexf": "^0.7.5",
     "graphology-layout": "^0.4.0",
     "graphology-layout-forceatlas2": "^0.6.0",
     "graphology-metrics": "^1.14.2",
@@ -77,7 +78,7 @@
     "popper.js": "^1.16.1",
     "seedrandom": "^3.0.5",
     "select2": "^4.0.13",
-    "sigma": "^2.0.0-alpha32",
+    "sigma": "^2.0.0-beta5",
     "simple-node-logger": "^18.12.24",
     "webpack": "^4.42.1"
   }

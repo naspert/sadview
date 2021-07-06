@@ -8,7 +8,8 @@ import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 import graph from 'graphology';
-import WebGLRenderer from 'sigma/renderers/webgl';
+import {parse as gexfParse} from 'graphology-gexf/node';
+import Sigma from 'sigma/sigma';
 import pako from 'pako';
 import Color from 'color';
 import moment from 'moment';
@@ -27,7 +28,7 @@ let currMaxHop = 5;
 let slider;
 let maxWeight = 1;
 let devEnv = false;
-let uuidGraph = "";
+let uuidGraph;
 if (process.env.NODE_ENV !== 'production') {
     console.log('Looks like we are in development mode!');
     devEnv = true;
@@ -37,7 +38,6 @@ let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
 if (devEnv) {
     baseUrl = "http://localhost:8000/viewer/graph-layout-data/";
 }
-const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
 
 function formatAttributesCompat(attr_data) {
     const user_details = attr_data['user_details'];
@@ -80,7 +80,11 @@ function formatAttributes(attr_data) {
 
 function formatCommunityInfo(commInfo,commId) {
     const density = (commInfo.density*100).toFixed(1);
-    return `<h2>Community ${commId}</h2><p>Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p><p>Density: ${density} %</p>`;
+    return `<div class="card"><div class="card-body">
+                <h5 class="card-title">Community ${commId}</h5>
+                <p class="card-text">Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p>
+                <p class="card-text">Density: ${density} %</p>
+            </div></div>`;
 }
 
 function highlightNode(node, graph, renderer) {
@@ -113,7 +117,7 @@ function displayUserInfo(node, attr, clusterInfo) {
     displayCommunityVoc(node, attr, clusterInfo);
 }
 
-function displayUserHashtags(node, attr, clusterInfo) {
+function displayUserHashtags(node, attr, _) {
     if (node === "")
         return;
     import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
@@ -146,7 +150,7 @@ function displayCommunityVoc(node, attr, clusterInfo) {
 
 function computeNodesSize(graph, attrName) {
     const MIN_NODE_SIZE = 3;
-    const MAX_NODE_SIZE = 30;
+    const MAX_NODE_SIZE = 15;
     const maxDegree = graph.getAttribute('maxDegree');
     graph.forEachNode((node) => {
         const degree = graph.getNodeAttribute(node, attrName);
@@ -206,7 +210,9 @@ function renderGraph(graphUUID) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
     let clusterInfo;// = graphLayoutData.clusterInfo;
-
+    let isGexf = false;
+    let maxDegree = 0;
+    let hashtagList = [];
 
     $('#userhashtags-disp').empty();
     $('#userinfo-disp').empty();
@@ -222,21 +228,34 @@ function renderGraph(graphUUID) {
 
     fetch(baseUrl + graphUUID)
         .then(response => response.json())
-        //.then(j => JSON.parse(j))
         .then((d) => {
+            isGexf = d.isGexf || false;
+            if (isGexf) {
+                maxWeight = d.attributes.maxWeight;
+                maxHop = d.attributes.maxHop;
+                maxDegree = d.attributes.maxDegree;
+                hashtagList = d.attributes.hashtags;
+            }
             clusterInfo = d.clusterInfo;
             return new Uint8Array(window.atob(d.compressedGraph).split('').map(c => c.charCodeAt(0)))
         })
         //.then(res => res.arrayBuffer())
         .then(ab => pako.inflate(ab, {to:'string'}))
         .then(r => {
-            return JSON.parse(r);
+            if (isGexf)
+                return gexfParse(graph, r);
+            return graph.from(JSON.parse(r));
         })
-        .then(graph_data => {
+        .then(g => {
             const container = $('#sigma-container');
-            const g = graph.from(graph_data);
-            maxWeight = g.getAttribute('max weight');
-            const renderer = new WebGLRenderer(g, container[0], {
+            if (isGexf) {
+                g.setAttribute('maxDegree', maxDegree);
+            } else {
+                maxWeight = g.getAttribute('max weight');
+                maxHop = g.getAttribute('max hop');
+                hashtagList = g.getAttribute('hashtags');
+            }
+            const renderer = new Sigma(g, container[0], {
                 nodeReducer,
                 edgeReducer,
                 labelRenderer: drawCustomLabel,
@@ -247,14 +266,12 @@ function renderGraph(graphUUID) {
                 highlightedNodes = new Set(g.neighbors(node));
                 highlightedNodes.add(node);
                 highlightedEdges = new Set(g.edges(node));
-
                 renderer.refresh();
             });
 
-            renderer.on('leaveNode', ({node}) => {
+            renderer.on('leaveNode', ({_}) => {
                 highlightedNodes.clear();
                 highlightedEdges.clear();
-
                 renderer.refresh();
             });
 
@@ -295,7 +312,6 @@ function renderGraph(graphUUID) {
                 displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo);
             });
 
-            const hashtagList = g.getAttribute('hashtags');
             const hashtagSelectData = [{id: '', text: ''}].concat($.map(hashtagList, function (h) {
                 return {
                     id: h,
@@ -316,7 +332,6 @@ function renderGraph(graphUUID) {
                 highlightNodes(g, htag, renderer);
             });
 
-            maxHop = g.getAttribute('max hop');
             currMaxHop = maxHop;
 
             if (slider)
@@ -342,29 +357,32 @@ function renderGraph(graphUUID) {
 
 // Maybe use a hidden element in the template and retrieve the uuid using it
 // instead of parsing url ?
-if (devEnv)
+if (devEnv) {
     uuidGraph = "70892cdb-0cd9-4f99-b455-c6022372666f";
-else
-    uuidGraph = window.location.toString().match(uuidRegex)[0]
+}
+else {
+    const uuidRegex = /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?/g
+    uuidGraph = window.location.toString().match(uuidRegex)[0];
+}
 renderGraph(uuidGraph);
 window.onload = function() {
     console.log('onload start...');
-    $('#fa2').change((event) => {
+    $('#fa2').change(() => {
         console.log('FA2 layout -> reload coords');
-        window.graph.forEachNode(function(key, attr) {
+        window.graph.forEachNode(function(key, _) {
             window.graph.setNodeAttribute(key, 'x', savedCoords[key].x);
             window.graph.setNodeAttribute(key, 'y', savedCoords[key].y);
         });
     });
 
-    $('#circlepack').change((event) => {
+    $('#circlepack').change((_) => {
         console.log('Circlepack layout');
         circlePackLayout(window.graph);
     });
 
 // degree display button group
 
-    $('#degree').change((event) => {
+    $('#degree').change((_) => {
         console.log('size <=> degree');
         computeNodesSize(window.graph, 'degree');
         if ($('#circlepack').parent().hasClass('active')) {
@@ -372,7 +390,7 @@ window.onload = function() {
         }
     });
 
-    $('#indegree').change((event) => {
+    $('#indegree').change((_) => {
         console.log('size <=> in-degree');
         computeNodesSize(window.graph, 'inDegree');
         if ($('#circlepack').parent().hasClass('active')) {
@@ -380,7 +398,7 @@ window.onload = function() {
         }
     });
 
-    $('#outdegree').change((event) => {
+    $('#outdegree').change((_) => {
         console.log('size <=> out-degree');
         computeNodesSize(window.graph, 'outDegree');
         if ($('#circlepack').parent().hasClass('active')) {
