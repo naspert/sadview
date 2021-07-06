@@ -7,6 +7,8 @@ import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
+import '@fortawesome/fontawesome-free/js/fontawesome'
+import '@fortawesome/fontawesome-free/js/solid'
 import graph from 'graphology';
 import {parse as gexfParse} from 'graphology-gexf/node';
 import Sigma from 'sigma/sigma';
@@ -19,7 +21,7 @@ import numeral from 'numeral';
 let highlightedNodes = new Set();
 let highlightedNeighbors = new Set();
 let highlightedEdges = new Set();
-let highlightedHashtagNode = new Set();
+
 let savedCoords = {};
 let displayNodeInfo = displayUserInfo;
 let selectedNode = "";
@@ -29,6 +31,11 @@ let slider;
 let maxWeight = 1;
 let devEnv = false;
 let uuidGraph;
+let displayHashtagSubgraph = false;
+let selectedHashtags;
+let selectedHashtagNodes = new Set();
+let selectedHashtagEdges = new Set();
+
 if (process.env.NODE_ENV !== 'production') {
     console.log('Looks like we are in development mode!');
     devEnv = true;
@@ -37,6 +44,27 @@ if (process.env.NODE_ENV !== 'production') {
 let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
 if (devEnv) {
     baseUrl = "http://localhost:8000/viewer/graph-layout-data/";
+}
+
+function rebuildHashtagsSubgraph(graphObj, renderer) {
+    selectedHashtags = $('.hashtag-selector').select2('data').map(c => c.id);
+    selectedHashtagNodes = new Set();
+    selectedHashtagEdges = new Set();
+
+    // build nodes list using the selected hashtags
+    for (const [node, attributes] of graphObj.nodeEntries()) {
+        let intersection = selectedHashtags.filter(x => attributes.hashtags.includes(x));
+        if (intersection.length)
+            selectedHashtagNodes.add(node);
+    }
+
+    // build edges list for the considered nodes
+    for (const [edge, attributes, source, target, sourceAttributes, targetAttributes] of graphObj.edgeEntries()) {
+        if (selectedHashtagNodes.has(source) && selectedHashtagNodes.has(target))
+            selectedHashtagEdges.add(edge);
+    }
+    console.log(`Hashtag subgraph has ${selectedHashtagNodes.size} nodes and ${selectedHashtagEdges.size} edges`);
+    renderer.refresh();
 }
 
 function formatAttributesCompat(attr_data) {
@@ -96,16 +124,6 @@ function highlightNode(node, graph, renderer) {
     renderer.refresh();
 }
 
-function highlightNodes(graph, hashtag, renderer) {
-    highlightedHashtagNode.clear(); // flush on new hashtag select
-    graph.forEachNode(n => {
-        const nodeHashtags = graph.getNodeAttribute(n, 'all_hashtags');
-        if (nodeHashtags.includes(hashtag))
-            highlightedHashtagNode.add(n);
-    });
-    renderer.refresh();
-}
-
 
 function displayUserInfo(node, attr, clusterInfo) {
     if (node === "")
@@ -122,10 +140,7 @@ function displayUserHashtags(node, attr, _) {
         return;
     import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
         const plotHashtags = module.plotHashtags;
-        const hashTags = attr['all_hashtags'] || '[]';
-        $('#userhashtags-disp').empty();
-        if (hashTags.length > 0)
-            plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+        plotHashtags(attr.hashtagsHisto); // can be missing so avoid exceptions
     });
 }
 
@@ -166,17 +181,23 @@ function circlePackLayout(graphObj) {
     });
 }
 
+
 const nodeReducer = (node, data) => {
+    if (selectedHashtags) {
+        if (!selectedHashtagNodes.has(node)) {
+            const alpha = 0.1;
+            const newColor = Color(data.color).alpha(alpha);
+            return {...data, color: newColor.rgb().string(), zIndex: 0};
+        }
+    }
     if (highlightedNodes.has(node))
         return {...data, color: '#f00', zIndex: 1};
-    else if (highlightedNeighbors.has(node))
+    if (highlightedNeighbors.has(node))
         return {...data, color: '#700', zIndex: 1};
-    else if (highlightedHashtagNode.has(node))
-        return {...data, color: '#0f0', zIndex: 1};
-    else if (data.spikyball_hop > currMaxHop) {
+    if (data.spikyball_hop > currMaxHop) {
         const delta = data.spikyball_hop - currMaxHop;
-        const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
-        const newColor = Color(data.color).darken(1.5*delta/maxHop).desaturate(1.5*delta/maxHop).alpha(alpha);
+        const alpha = Math.max(0.05, 0.3 - 0.1 * (delta)); // do not use if spiky_hop == currMaxHop
+        const newColor = Color(data.color).darken(1.5 * delta / maxHop).desaturate(1.5 * delta / maxHop).alpha(alpha);
 
         return {...data, color: newColor.rgb().string(), zIndex: 0};
     }
@@ -184,6 +205,13 @@ const nodeReducer = (node, data) => {
 };
 
 const edgeReducer = (edge, data) => {
+    if (selectedHashtags) {
+        if (!selectedHashtagEdges.has(edge)) {
+            const alpha = 0.1;
+            const newColor = Color('#111').alpha(alpha);
+            return {...data, color: newColor.rgb().string()};
+        }
+    }
     if (highlightedEdges.has(edge))
         return {...data, color: '#500', zIndex: 1};
     const weight = data.weight;
@@ -255,6 +283,17 @@ function renderGraph(graphUUID) {
                 maxHop = g.getAttribute('max hop');
                 hashtagList = g.getAttribute('hashtags');
             }
+
+            // parse hashtags
+            g.forEachNode((key, attrs) => {
+                const jsonHashtags = attrs.all_hashtags || '[]';
+                const hashtagsHisto = Object.entries(JSON.parse(jsonHashtags.replace(/'/g, '"'))).map((p) => {
+                    return {name:p[0], num:p[1]};
+                }).sort(function(a,b) {return b.num - a.num});
+                g.setNodeAttribute(key, 'hashtagsHisto', hashtagsHisto);
+                g.setNodeAttribute(key, 'hashtags', hashtagsHisto.map(h => h.name));
+            });
+
             const renderer = new Sigma(g, container[0], {
                 nodeReducer,
                 edgeReducer,
@@ -307,7 +346,6 @@ function renderGraph(graphUUID) {
             nodeSelect2.off('select2:select');
             nodeSelect2.on('select2:select', e => {
                 const node = e.params.data.id;
-                highlightNode(node, g, renderer);
                 selectedNode = node;
                 displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo);
             });
@@ -324,13 +362,15 @@ function renderGraph(graphUUID) {
             hashtagSelect.select2({
                 placeholder: 'Search hashtag',
                 theme: 'bootstrap4',
+                multiple: true,
                 data: hashtagSelectData
             });
-            hashtagSelect.off('select2:select');
-            hashtagSelect.on('select2:select', e => {
-                const htag = e.params.data.id;
-                highlightNodes(g, htag, renderer);
+            hashtagSelect.off('select2:select select2:unselect');
+            hashtagSelect.on('select2:select select2:unselect', e => {
+                if (selectedHashtags)
+                    rebuildHashtagsSubgraph(g, renderer);
             });
+
 
             currMaxHop = maxHop;
 
@@ -405,5 +445,19 @@ window.onload = function() {
             circlePackLayout(window.graph);
         }
     });
+
+    $('#hashtag-filter').click(() => {
+        if($('#hashtag-filter').hasClass('active')) {
+            console.log('de-activate hashtag filter');
+            displayHashtagSubgraph = false;
+            selectedHashtags = null;
+            window.renderer.refresh();
+        } else {
+            console.log('activate hashtag filter');
+            displayHashtagSubgraph = true;
+            rebuildHashtagsSubgraph(window.graph, window.renderer);
+        }
+    });
+
     console.log('onload complete');
 }

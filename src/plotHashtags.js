@@ -1,10 +1,7 @@
 import plotly from 'plotly.js-basic-dist-min';
 
-export function plotHashtags(htListJson) {
+export function plotHashtags(hashtags) {
     // get sorted hashtags list with most used first
-    const hashtags = Object.entries(JSON.parse(htListJson.replace(/'/g, '"'))).map((p) => {
-        return {name:p[0], num:p[1]};
-    }).sort(function(a,b) {return b.num - a.num});
     const x = hashtags.map(t => t.name);
     const y = hashtags.map(t => t.num);
     const data = [
