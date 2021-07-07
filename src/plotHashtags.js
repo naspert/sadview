@@ -6,21 +6,28 @@ export function plotHashtags(hashtags) {
     const y = hashtags.map(t => t.num);
     const data = [
         {
-            x: x,
-            y: y,
+            x: y,
+            y: x,
             type: 'bar',
+            orientation: 'h'
         }
     ];
 
     const layout = {
-        autosize: false,
-        height: 200,
+        autosize: true,
+        width: 200,
         margin: {
             l: 50,
             r: 5,
             b: 100,
             t: 10,
             pad: 4
+        },
+        yaxis: {
+            ticklabelposition: 'outside right',
+            position: 1,
+            side: 'right',
+            automargin: true
         }
     };
     plotly.newPlot('userhashtags-disp', data, layout);
