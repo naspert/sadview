@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 ">
+                <div class="row">
+                    <div id="spinner-disp" class="col-2">
+                        <strong>Loading...</strong>
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="layout-controls" class="col-11 ml-1 rounded bg-secondary">
+                        <div class="row">
+                            <div class="card-deck ml-1 mt-2 mb-2 mr-1">
+                                <div class="card graph-control" style="min-width: 16rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Layout</h5>
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-secondary active">
+                                                <input type="radio" name="options" id="fa2" autocomplete="off" checked> ForceAtlas2
+                                            </label>
+                                            <label class="btn btn-secondary">
+                                                <input type="radio" name="options" id="circlepack" autocomplete="off"> CirclePack
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card graph-control" style="min-width: 16rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Hop number</h5>
+                                        <input id="hopSlider" text="hop number">
+                                    </div>
+                                </div>
+
+                                <div class="card graph-control" style="min-width: 22rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Node size</h5>
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-secondary active">
+                                                <input type="radio" name="options" id="degree" autocomplete="off" checked>Degree
+                                            </label>
+                                            <label class="btn btn-secondary">
+                                                <input type="radio" name="options" id="indegree" autocomplete="off">In-degree
+                                            </label>
+                                            <label class="btn btn-secondary">
+                                                <input type="radio" name="options" id="outdegree" autocomplete="off">Out-degree
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card graph-control">
+                                    <div class="card-body">
+                                        <h5 class="card-title">User</h5>
+                                        <select id="node-selector" style="width: 100%">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card graph-control" style="min-width: 12rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Hashtag</h5>
+                                        <select id="hashtag-selector" style="width: 100%" multiple="multiple">
+                                            <option></option>
+                                        </select>
+                                        <button type="button" id="hashtag-filter" class="btn btn-secondary" data-toggle="button" aria-pressed="false">
+                                            <i class="fas fa-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row h-100">
+                    <div class="col-3">
+                        <div id="userinfo-disp" class="mt-2"></div>
+                        <div id="userhashtags-disp"></div>
+                    </div>
+                    <div id="sigma-container" class="col-6 h-100"></div>
+                    <div class="col-3">
+                        <div class="card" style="min-height: 300px;">
+                            <div class="card-body">
+                                <div id="wordcloud-disp" class="svg-container w-100"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Community filtering</h5>
+                                <select id="community-selector" style="width: 100%" multiple="multiple">
+                                    <option></option>
+                                </select>
+                                <button type="button" id="community-filter" class="btn btn-secondary" data-toggle="button" aria-pressed="false">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="comminfo-disp"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="application/javascript">
+    window.resourceBasePath = '/';
+</script>
+<script src="viewer.js"></script>
+</html>
