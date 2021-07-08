@@ -31,10 +31,12 @@ let slider;
 let maxWeight = 1;
 let devEnv = false;
 let uuidGraph;
+
 let displayHashtagSubgraph = false;
 let selectedHashtags;
 let selectedHashtagNodes = new Set();
 let selectedHashtagEdges = new Set();
+
 let displayCommunitiesSubgraph = false;
 let selectedCommunities = new Set();
 let selectedCommunitiesNodes = new Set();
@@ -212,15 +214,45 @@ function circlePackLayout(graphObj) {
 
 
 const nodeReducer = (node, data) => {
-    if (selectedNodes.has(node))
-        return {...data, color: '#0f0', zIndex: 1};
-    if ((displayCommunitiesSubgraph && !selectedCommunitiesNodes.has(node)) ||
-        (displayHashtagSubgraph && !selectedHashtagNodes.has(node))) {
-        const alpha = 0.1;
-        const newColor = Color(data.color).alpha(alpha);
+    let alpha = 0.1;
+    let color = data.color;
+    let filterActive = displayHashtagSubgraph || displayCommunitiesSubgraph;
+    let filterMatch = false;
+    if (displayHashtagSubgraph && !displayCommunitiesSubgraph && selectedHashtagNodes.has(node)) {
+        alpha = 1;
+        filterMatch = true;
+    }
+    if (displayCommunitiesSubgraph && !displayHashtagSubgraph && selectedCommunitiesNodes.has(node))
+    {
+        alpha = 1;
+        filterMatch = true;
+    }
+    if (displayCommunitiesSubgraph && displayHashtagSubgraph) {
+        const commMatch = selectedCommunitiesNodes.has(node);
+        const hashtagMatch = selectedHashtagNodes.has(node);
+        if ((commMatch && !hashtagMatch) || (!commMatch && hashtagMatch)) { // match half of active filters
+            alpha = 0.5;
+            filterMatch = true;
+        }
+        else if (hashtagMatch && commMatch) { // full match
+            alpha = 1;
+            filterMatch = true;
+        }
+    }
+    if (filterActive) {
+        // if the node is selected, display it even if it is filtered out by hashtags/community
+        if (selectedNodes.has(node)) {
+            color = '#0f0';
+            if (!filterMatch)
+                alpha = 0.5;
+            else
+                alpha = 1;
+        }
+        const newColor = Color(color).alpha(alpha);
         return {...data, color: newColor.rgb().string(), zIndex: 0};
     }
-
+    if (selectedNodes.has(node))
+        return {...data, color: '#0f0', zIndex: 1};
     if (highlightedNodes.has(node))
         return {...data, color: '#f00', zIndex: 1};
     if (highlightedNeighbors.has(node))
