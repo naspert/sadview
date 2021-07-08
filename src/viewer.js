@@ -24,7 +24,7 @@ let highlightedEdges = new Set();
 
 let savedCoords = {};
 let displayNodeInfo = displayUserInfo;
-let selectedNode = "";
+let selectedNodes = new Set();
 let maxHop = 5;
 let currMaxHop = 5;
 let slider;
@@ -212,6 +212,8 @@ function circlePackLayout(graphObj) {
 
 
 const nodeReducer = (node, data) => {
+    if (selectedNodes.has(node))
+        return {...data, color: '#0f0', zIndex: 1};
     if ((displayCommunitiesSubgraph && !selectedCommunitiesNodes.has(node)) ||
         (displayHashtagSubgraph && !selectedHashtagNodes.has(node))) {
         const alpha = 0.1;
@@ -265,7 +267,7 @@ const drawCustomLabel = (context, data, settings) => {
 function renderGraph(graphUUID) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
-    let clusterInfo;// = graphLayoutData.clusterInfo;
+    let clusterInfo;
     let isGexf = false;
     let maxDegree = 0;
     let hashtagList = [];
@@ -274,7 +276,7 @@ function renderGraph(graphUUID) {
     $('#userinfo-disp').empty();
     $('#wordcloud-disp').empty();
     $('#comminfo-disp').empty();
-    selectedNode = ""
+    selectedNodes = new Set();
     console.log('Rendering...');
     if (window.graph)
         window.graph.clear();
@@ -344,7 +346,6 @@ function renderGraph(graphUUID) {
 
             renderer.on('clickNode', ({node}) => {
                 const attr = g.getNodeAttributes(node);
-                selectedNode = node;
                 displayNodeInfo(node, attr, clusterInfo);
             });
 
@@ -368,14 +369,21 @@ function renderGraph(graphUUID) {
             nodeSelect2.select2({
                 placeholder: 'Search node',
                 theme: 'bootstrap4',
-                data: nodeSelectData
+                data: nodeSelectData,
+                multiple: true
             });
 
-            nodeSelect2.off('select2:select');
+            nodeSelect2.off('select2:select select2:unselect');
             nodeSelect2.on('select2:select', e => {
                 const node = e.params.data.id;
-                selectedNode = node;
+                selectedNodes.add(node);
                 displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo);
+                renderer.refresh();
+            });
+            nodeSelect2.on('select2:unselect', e => {
+                const node = e.params.data.id;
+                selectedNodes.delete(node);
+                renderer.refresh();
             });
 
             const hashtagSelectData = [{id: '', text: ''}].concat($.map(hashtagList, function (h) {
