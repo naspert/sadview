@@ -7,8 +7,9 @@ import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
-import '@fortawesome/fontawesome-free/js/fontawesome'
-import '@fortawesome/fontawesome-free/js/solid'
+import '@fortawesome/fontawesome-free/js/fontawesome';
+import '@fortawesome/fontawesome-free/js/solid';
+import '@fortawesome/fontawesome-free/js/brands';
 import graph from 'graphology';
 import {parse as gexfParse} from 'graphology-gexf/node';
 import Sigma from 'sigma/sigma';
@@ -98,6 +99,30 @@ function rebuildCommunitySubgraph(graphObj, renderer) {
     renderer.refresh();
 }
 
+function buildCommunitySearchUrl(graphObj, communityId) {
+    let nodeList = [];
+    let queryBaseUrl = "https://twitter.com/search?q=";
+    let queryFrom = [];
+    let queryTo = [];
+    let queryStr = "(";
+    graphObj.forEachNode((node, attributes) => {
+        if (attributes.community == communityId) {
+            nodeList.push({name: node, degree:attributes["degree"]});
+
+        }
+    });
+    nodeList.sort(function(a, b) {return b.degree - a.degree}); // sort by highest degree
+    for (const n of nodeList.slice(0,5)) { // make the query short (must fit in 512 chars)
+        queryFrom.push(`from:${n.name}`);
+        queryTo.push(`to:${n.name}`);
+    }
+    queryStr += queryFrom.join(" OR ") + ") (";
+    queryStr += queryTo.join(" OR ") + ")";
+    queryStr += "&f=live"; // show recent results
+    console.log("Twitter search query length is ", queryStr.length)
+    return queryBaseUrl + encodeURIComponent(queryStr);
+}
+
 function formatAttributesCompat(attr_data) {
     const user_details = attr_data['user_details'];
     const name = attr_data['name'];
@@ -144,15 +169,6 @@ function formatCommunityInfo(commInfo,commId) {
             <p class="card-text">Density: ${density} %</p>`;
 }
 
-function highlightNode(node, graph, renderer) {
-    console.log('Node selected: ' + node);
-    highlightedNeighbors = new Set(graph.neighbors(node));
-    highlightedNodes.add(node);
-    highlightedEdges = new Set(graph.edges(node));
-
-    renderer.refresh();
-}
-
 
 function displayUserInfo(node, attr, clusterInfo) {
     if (node === "")
@@ -179,6 +195,7 @@ function displayCommunityInfo(node, attr, clusterInfo) {
     const infoDisp = $('#comminfo-disp');
     const community = clusterInfo[attr.community];
     infoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
+    $('#twitter-search-link').attr('href', buildCommunitySearchUrl(window.graph, attr.community));
 }
 
 function displayCommunityVoc(node, attr, clusterInfo) {
