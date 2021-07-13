@@ -118,9 +118,8 @@ function buildCommunitySearchUrl(graphObj, communityId) {
     }
     queryStr += queryFrom.join(" OR ") + ") (";
     queryStr += queryTo.join(" OR ") + ")";
-    queryStr += "&f=live"; // show recent results
     console.log("Twitter search query length is ", queryStr.length)
-    return queryBaseUrl + encodeURIComponent(queryStr);
+    return queryBaseUrl + encodeURIComponent(queryStr) + "&f=live";
 }
 
 function formatAttributesCompat(attr_data) {
