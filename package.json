@@ -51,7 +51,7 @@
     "@ttskch/select2-bootstrap4-theme": "^1.4.0",
     "argparse": "^2.0.1",
     "aws-sdk": "^2.756.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.4.1",
     "bootstrap-slider": "^11.0.2",
