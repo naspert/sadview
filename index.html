@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid h-100">
+    <div class="row">
+        <div class="col-2">
+            <div class="row">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Select data
+                    </button>
+                    <div class="dropdown-menu" id="graph-selector" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" data-graph="graph_reddit_t2_md2.json.gz" href="#">JS graph</a>
+                        <a class="dropdown-item" data-graph="graph.reddit_t2_md2.gexf.gz" href="#">GEXF new graph</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id="spinner-disp" class="col-2">
+            <strong>Loading...</strong>
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <div id="layout-controls" class="col-10">
+            <div class="row">
+                <div class="col-3">
+                    <div class="row">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                                <input type="radio" name="options" id="fa2" autocomplete="off" checked> Force Atlas2
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input type="radio" name="options" id="circlepack" autocomplete="off"> Circle Pack
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h4>Hop number</h4>
+                            <input id="hopSlider" text="hop number">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    User: <select class="node-selector" style="width: 100%">
+                    <option></option>
+                </select>
+                    Hashtag: <select class="hashtag-selector" style="width: 100%">
+                    <option></option>
+                </select>
+                </div>
+                <div class="col-4">
+                    Node size:
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                            <input type="radio" name="options" id="degree" autocomplete="off" checked> Degree
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="indegree" autocomplete="off"> In-degree
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="outdegree" autocomplete="off"> Out-degree
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4" id="userinfo-disp"></div>
+        <div class="col-8" id="userhashtags-disp"></div>
+    </div>
+
+    <div class="row h-100">
+        <div id="sigma-container" class="h-100 col-8"></div>
+        <div class="col-4">
+            <div class="row">
+                <div id="comminfo-disp" class="w-100"></div>
+            </div>
+            <div class="row">
+                <div id="wordcloud-disp" class="w-100"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="index.js"></script>
+</body>
+</html>
