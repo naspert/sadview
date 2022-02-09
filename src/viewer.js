@@ -586,7 +586,7 @@ window.onload = function() {
     });
 
     $('#nav-hashtags-tab').on('shown.bs.tab', e => {
-
+        plotHashtagsTimeline();
     });
 
     console.log('onload complete');
