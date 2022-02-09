@@ -17,6 +17,7 @@ import pako from 'pako';
 import Color from 'color';
 import moment from 'moment';
 import numeral from 'numeral';
+import {plotHashtagsData} from "./hashtagsTimeline";
 
 /* global vars */
 let highlightedNodes = new Set();
@@ -37,6 +38,7 @@ let displayHashtagSubgraph = false;
 let selectedHashtags;
 let selectedHashtagNodes = new Set();
 let selectedHashtagEdges = new Set();
+let hashtagChart;
 
 let displayCommunitiesSubgraph = false;
 let selectedCommunities = new Set();
@@ -49,8 +51,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 // API endpoint used to fetch JSON data
 let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
+let hashtagsUrl = window.location.origin + '/viewer/hashtags-timeline/';
+
 if (devEnv) {
     baseUrl = "http://localhost:8000/viewer/graph-layout-data/";
+    hashtagsUrl = "http://localhost:8000/viewer/hashtags-timeline/";
 }
 
 function hashtagNodeSelector(node, attributes, selectedHashtags) {
@@ -226,6 +231,13 @@ function circlePackLayout(graphObj) {
     });
 }
 
+function plotHashtagsTimeline() {
+    import(/*webpackChunkName: "hashtagsTimeline" */'./hashtagsTimeline').then(async module => {
+        const plotHashtagsData = module.plotHashtagsData;
+        await plotHashtagsData(hashtagsUrl, "#nav-hashtags-tab",
+            20, 24, 3, 3);
+    });
+}
 
 const nodeReducer = (node, data) => {
     let alpha = 0.1;
@@ -571,6 +583,10 @@ window.onload = function() {
             displayCommunitiesSubgraph = true;
             rebuildCommunitySubgraph(window.graph, window.renderer);
         }
+    });
+
+    $('#nav-hashtags-tab').on('shown.bs.tab', e => {
+
     });
 
     console.log('onload complete');
