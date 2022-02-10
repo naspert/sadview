@@ -231,10 +231,10 @@ function circlePackLayout(graphObj) {
     });
 }
 
-function plotHashtagsTimeline() {
+function plotHashtagsTimeline(uuidGraph) {
     import(/*webpackChunkName: "hashtagsTimeline" */'./hashtagsTimeline').then(async module => {
         const plotHashtagsData = module.plotHashtagsData;
-        await plotHashtagsData(hashtagsUrl, "hashtags-timeline-disp",
+        await plotHashtagsData(`hashtagsUrl${uuidGraph}`, "hashtags-timeline-disp",
             20, 24, 3, 3);
     });
 }
@@ -503,7 +503,7 @@ function renderGraph(graphUUID) {
             window.camera = renderer.camera;
             spinDisp.hide();
             layoutControls.show();
-            plotHashtagsTimeline();
+            plotHashtagsTimeline(graphUUID);
             console.log('Rendering done');
         });
 }
