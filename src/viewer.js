@@ -503,6 +503,7 @@ function renderGraph(graphUUID) {
             window.camera = renderer.camera;
             spinDisp.hide();
             layoutControls.show();
+            plotHashtagsTimeline();
             console.log('Rendering done');
         });
 }
@@ -585,10 +586,6 @@ window.onload = function() {
         }
     });
 
-    $('#nav-hashtags-tab').on('shown.bs.tab', e => {
-        console.log('Plotting hashtags');
-        plotHashtagsTimeline();
-    });
 
     console.log('onload complete');
 }
