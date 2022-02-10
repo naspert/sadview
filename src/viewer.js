@@ -234,7 +234,7 @@ function circlePackLayout(graphObj) {
 function plotHashtagsTimeline() {
     import(/*webpackChunkName: "hashtagsTimeline" */'./hashtagsTimeline').then(async module => {
         const plotHashtagsData = module.plotHashtagsData;
-        await plotHashtagsData(hashtagsUrl, "#hashtags-timeline-disp",
+        await plotHashtagsData(hashtagsUrl, "hashtags-timeline-disp",
             20, 24, 3, 3);
     });
 }
