@@ -145,7 +145,7 @@ function getDataHashtags(data, activThr = 3, minActiv=1) {
 async function processRawData(dataUrl, numDays=30, sampleHours=24,
                               activThr=3, minActiv=3) {
     const hashtagsData = await axios.get(`${dataUrl}/${numDays}/${sampleHours}`);
-    return getDataHashtags(hashtagsData, activThr, minActiv)
+    return getDataHashtags(hashtagsData.data, activThr, minActiv)
 }
 
 export async function plotHashtagsData(dataUrl, echartsElemId, numDays=20,
