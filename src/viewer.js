@@ -238,6 +238,7 @@ function plotHashtagsTimeline(uuidGraph) {
             20, 24, 3, 3, (activeAccts) => {
                 console.log(activeAccts);
                 activeAcctsNodes = new Set(Object.keys(activeAccts)); // TODO take into account number of #
+                renderer.refresh();
             });
     });
 }
@@ -281,7 +282,7 @@ const nodeReducer = (node, data) => {
         return {...data, color: newColor.rgb().string(), zIndex: 0};
     }
     if (activeAcctsNodes.has(node))
-        return {...data, color: '#aaccff', zIndex: 1};
+        return {...data, color: '#a3a3ff', zIndex: 1};
     if (selectedNodes.has(node))
         return {...data, color: '#0f0', zIndex: 1};
     if (highlightedNodes.has(node))

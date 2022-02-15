@@ -165,6 +165,9 @@ export async function plotHashtagsData(dataUrl, echartsElemId, numDays=20,
     };
     if (extHoverCallback)
         hoverCallback = extHoverCallback;
+    echartContainer.on('mouseout', ()=> {
+        hoverCallback({}); // will clear the list of active nodes
+    })
 }
 
 
