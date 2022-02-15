@@ -61,7 +61,7 @@ let option = {
                 formatter: (data) => {
                     // get the data for current time
                     const curDate = data.seriesData[0].data[0];
-                    const activeAccounts = getActiveAccounts(data);
+                    const activeAccounts = getActiveAccounts(curDate);
                     console.log(activeAccounts);
                     return `date: ${curDate}`;
                 },
@@ -91,13 +91,13 @@ let option = {
     ]
 };
 
-function getActiveAccounts(data) {
+function getActiveAccounts(curDate) {
     const hashtags = echartContainer.getOption().legend[0].data;
     const selection = echartContainer.getOption().legend[0].selected;
     // list of selected accounts
     const activeHashtags = _.filter(hashtags, p => { return _.get(selection, p,  true)})
 
-    const currentActiveHashtags = _.pick(hashtagsData.detailTimeline[curDate], activeHashtags);
+    const currentActiveHashtags = _.pick(currentHashtagsData.detailTimeline[curDate], activeHashtags);
     // now merge the accounts
     let accts = {};
     Object.keys(currentActiveHashtags).forEach(k => {
