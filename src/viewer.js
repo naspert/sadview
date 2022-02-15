@@ -237,7 +237,7 @@ function plotHashtagsTimeline(uuidGraph) {
         await plotHashtagsData(`${hashtagsUrl}${uuidGraph}`, "hashtags-timeline-disp",
             20, 24, 3, 3, (activeAccts) => {
                 console.log(activeAccts);
-                activeAcctsNodes = new Set(activeAccts);
+                activeAcctsNodes = new Set(Object.keys(activeAccts)); // TODO take into account number of #
             });
     });
 }
