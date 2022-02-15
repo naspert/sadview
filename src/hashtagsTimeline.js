@@ -20,6 +20,9 @@ echarts.use([
 
 let echartContainer;
 let currentHashtagsData;
+let hoverCallback = function (activeAccounts) {
+    console.log(activeAccounts);
+}
 
 let option = {
     tooltip: {
@@ -62,7 +65,7 @@ let option = {
                     // get the data for current time
                     const curDate = data.seriesData[0].data[0];
                     const activeAccounts = getActiveAccounts(curDate);
-                    console.log(activeAccounts);
+                    hoverCallback(activeAccounts);
                     return `date: ${curDate}`;
                 },
             },
@@ -149,7 +152,7 @@ async function processRawData(dataUrl, numDays=30, sampleHours=24,
 }
 
 export async function plotHashtagsData(dataUrl, echartsElemId, numDays=20,
-                                       sampleHours=24, activThr=3, minActiv=3) {
+                                       sampleHours=24, activThr=3, minActiv=3, extHoverCallback = null) {
     echartContainer = echarts.init(document.getElementById(echartsElemId));
     currentHashtagsData = await processRawData(dataUrl, numDays, sampleHours, activThr, minActiv);
     option.series[0].data = currentHashtagsData.data;
@@ -160,7 +163,8 @@ export async function plotHashtagsData(dataUrl, echartsElemId, numDays=20,
     window.onresize = function() {
         echartContainer.resize();
     };
-
+    if (extHoverCallback)
+        hoverCallback = extHoverCallback;
 }
 
 

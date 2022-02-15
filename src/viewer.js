@@ -38,7 +38,7 @@ let displayHashtagSubgraph = false;
 let selectedHashtags;
 let selectedHashtagNodes = new Set();
 let selectedHashtagEdges = new Set();
-let hashtagChart;
+let activeAcctsNodes = new Set();
 
 let displayCommunitiesSubgraph = false;
 let selectedCommunities = new Set();
@@ -235,7 +235,10 @@ function plotHashtagsTimeline(uuidGraph) {
     import(/*webpackChunkName: "hashtagsTimeline" */'./hashtagsTimeline').then(async module => {
         const plotHashtagsData = module.plotHashtagsData;
         await plotHashtagsData(`${hashtagsUrl}${uuidGraph}`, "hashtags-timeline-disp",
-            20, 24, 3, 3);
+            20, 24, 3, 3, (activeAccts) => {
+                console.log(activeAccts);
+                activeAcctsNodes = new Set(activeAccts);
+            });
     });
 }
 
@@ -277,6 +280,8 @@ const nodeReducer = (node, data) => {
         const newColor = Color(color).alpha(alpha);
         return {...data, color: newColor.rgb().string(), zIndex: 0};
     }
+    if (activeAcctsNodes.has(node))
+        return {...data, color: '#aaccff', zIndex: 1};
     if (selectedNodes.has(node))
         return {...data, color: '#0f0', zIndex: 1};
     if (highlightedNodes.has(node))
