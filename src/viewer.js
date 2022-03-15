@@ -188,8 +188,8 @@ function displayUserHashtags(node, attr, _) {
     if (node === "")
         return;
     import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
-        const plotHashtags = module.plotHashtags;
-        plotHashtags(attr.hashtagsHisto); // can be missing so avoid exceptions
+        const plotHashtags = module.plotHashtagsEC;
+        plotHashtags(attr.hashtagsHisto, 'userhashtags-disp'); // can be missing so avoid exceptions
     });
 }
 
@@ -592,6 +592,9 @@ window.onload = function() {
         }
     });
 
-
+    $('#sigma-container').mouseenter(() => {
+        activeAcctsNodes = new Set();
+        window.renderer.refresh();
+    })
     console.log('onload complete');
 }

@@ -3,7 +3,7 @@
   "private": false,
   "main": "index.js",
   "license": "MIT",
-  "version": "0.6.0-rc1",
+  "version": "0.6.0-rc2",
   "publishConfig": {
     "@imi-sad:registry": "https://gitlab.switch.ch/api/v4/projects/846/packages/npm/"
   },
@@ -22,6 +22,7 @@
     "src/plotHashtags.js",
     "src/s3Graph.js",
     "src/hashtags.js",
+    "src/hashtagsTimeline.js",
     "public/*"
   ],
   "scripts": {
