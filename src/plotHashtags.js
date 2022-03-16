@@ -7,25 +7,25 @@ import { CanvasRenderer } from 'echarts/renderers';
 echarts.use([GridComponent, BarChart, CanvasRenderer]);
 export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
     const filtHashtags = hashtags.filter(t => t.num > 1);
-    const y = filtHashtags.map(t => t.name); // y axis is categories
-    const x = filtHashtags.map(t => t.num); // x is count
+    const x = filtHashtags.map(t => t.name); // x axis is categories
+    const y = filtHashtags.map(t => t.num); // y is count
     let options = {
         xAxis: {
-            type: 'value'
+            type: 'category',
+            data: x,
+            axisLabel: { interval: 0, rotate: 50 }
         },
         yAxis: {
-            type: 'category',
-            data: y
+            type: 'value',
         },
         series: [
             {
-                data: x,
+                data: y,
                 type: 'bar'
             }
         ]
     }
-    let chartDom = document.getElementById(userHashtagsContainerId);
-    let userHashtagPlots = echarts.init(chartDom);
+    let userHashtagPlots = echarts.init(document.getElementById(userHashtagsContainerId));
     userHashtagPlots.setOption(options);
 }
 export function plotHashtags(hashtags) {
