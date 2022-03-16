@@ -15,6 +15,9 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
     const x = sortHashtags.map(t => t.name); // x axis is categories
     const y = sortHashtags.map(t => t.num); // y is count
     let options = {
+        grid: {
+            containLabel: true
+        },
         xAxis: {
             type: 'category',
             data: x,

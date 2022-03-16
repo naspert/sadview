@@ -592,9 +592,10 @@ window.onload = function() {
         }
     });
 
-    $('#sigma-container').mouseenter(() => {
+    // clear highlighted nodes when leaving timeline
+    $('#hashtags-timeline-disp').mouseleave(() => {
         activeAcctsNodes = new Set();
         window.renderer.refresh();
-    })
+    });
     console.log('onload complete');
 }
