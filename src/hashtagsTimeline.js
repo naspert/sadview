@@ -151,7 +151,8 @@ async function processRawData(dataUrl, numDays=30, sampleHours=24,
 }
 
 export async function plotHashtagsData(dataUrl, echartsElemId, numDays=20,
-                                       sampleHours=24, activThr=3, minActiv=3, extHoverCallback = null) {
+                                       sampleHours=24, activThr=3, minActiv=3,
+                                       extHoverCallback = null) {
     echartContainer = echarts.init(document.getElementById(echartsElemId));
     currentHashtagsData = await processRawData(dataUrl, numDays, sampleHours, activThr, minActiv);
     option.series[0].data = currentHashtagsData.data;
@@ -164,9 +165,6 @@ export async function plotHashtagsData(dataUrl, echartsElemId, numDays=20,
     };
     if (extHoverCallback)
         hoverCallback = extHoverCallback;
-    echartContainer.on('mouseout', ()=> {
-        hoverCallback({}); // will clear the list of active nodes
-    })
 }
 
 

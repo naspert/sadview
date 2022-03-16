@@ -15,13 +15,18 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
     const x = sortHashtags.map(t => t.name); // x axis is categories
     const y = sortHashtags.map(t => t.num); // y is count
     let options = {
+        title: "User hashtags",
         grid: {
             containLabel: true
         },
         xAxis: {
+            z: 10,
             type: 'category',
             data: x,
-            axisLabel: { interval: 0, rotate: 80 }
+            axisLabel: {
+                rotate: 90,
+                inside: true
+            }
         },
         yAxis: {
             type: 'value',
