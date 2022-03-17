@@ -27,7 +27,11 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
             data: x,
             axisLabel: {
                 rotate: 90,
-                inside: true
+                inside: true,
+                color: '#ccc'
+            },
+            axisTick: {
+                show: false
             }
         },
         yAxis: {
@@ -36,7 +40,8 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
         series: [
             {
                 data: y,
-                type: 'bar'
+                type: 'bar',
+                showBackground: true,
             }
         ]
     }
