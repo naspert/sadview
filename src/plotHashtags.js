@@ -1,10 +1,14 @@
 import _ from 'lodash';
 import * as echarts from 'echarts/core';
-import { GridComponent } from 'echarts/components';
+import {
+    GridComponent,
+    TitleComponent,
+    TooltipComponent
+} from 'echarts/components';
 import { BarChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
 
-echarts.use([GridComponent, BarChart, CanvasRenderer]);
+echarts.use([GridComponent, BarChart, CanvasRenderer, TitleComponent, TooltipComponent]);
 export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
     // aggregate hashtags having different cases
     const hashtagsLower = hashtags.map(t => ({name: t.name.toLowerCase(), num: t.num}));
@@ -18,6 +22,15 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
         title: {
             text: 'User hashtags'
         },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'line',
+                label: {
+                    backgroundColor: '#283b56'
+                }
+            }
+        },
         grid: {
             containLabel: true
         },
@@ -28,7 +41,7 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
             axisLabel: {
                 rotate: 90,
                 inside: true,
-                color: '#ccc'
+                color: '#fff'
             },
             axisTick: {
                 show: false
@@ -41,7 +54,11 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
             {
                 data: y,
                 type: 'bar',
+                colorBy: 'data',
                 showBackground: true,
+                backgroundStyle:{
+                    color: 'rgba(120, 120, 120, 0.4)'
+                }
             }
         ]
     }
