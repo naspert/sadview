@@ -20,9 +20,9 @@ module.exports = {
             port: 9000
         },
         plugins: [
-            new CopyWebpackPlugin([
+            new CopyWebpackPlugin({ patterns: [
                {from: 'static'}
-            ]),
+            ]}),
             new Dotenv(),
             new webpack.ProvidePlugin({
                 $: 'jquery',
