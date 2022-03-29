@@ -41,7 +41,7 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
             axisLabel: {
                 rotate: 90,
                 inside: true,
-                color: '#fff'
+                color: '#d4a246'
             },
             axisTick: {
                 show: false
@@ -57,7 +57,7 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
                 colorBy: 'data',
                 showBackground: true,
                 backgroundStyle:{
-                    color: 'rgba(120, 120, 120, 0.4)'
+                    color: 'rgba(160, 160, 160, 0.2)'
                 }
             }
         ]
