@@ -54,7 +54,6 @@ export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
             {
                 data: y,
                 type: 'bar',
-                colorBy: 'data',
                 showBackground: true,
                 backgroundStyle:{
                     color: 'rgba(160, 160, 160, 0.2)'
