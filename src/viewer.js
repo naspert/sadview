@@ -17,7 +17,18 @@ import pako from 'pako';
 import Color from 'color';
 import moment from 'moment';
 import numeral from 'numeral';
+import * as Sentry from "@sentry/browser";
+import { BrowserTracing } from "@sentry/tracing";
 import {plotHashtagsData} from "./hashtagsTimeline";
+
+if (window.loadSentry) {
+    Sentry.init({
+        dsn: window.sentryDsn,
+        integrations: [new BrowserTracing()],
+
+        tracesSampleRate: 0.5,
+    });
+}
 
 /* global vars */
 let highlightedNodes = new Set();
