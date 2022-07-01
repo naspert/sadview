@@ -2263,10 +2263,10 @@ mnemonist@^0.39.0:
   dependencies:
     obliterator "^2.0.1"
 
-moment@^2.20.1, moment@^2.29.1:
-  version "2.29.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
-  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
+moment@^2.20.1, moment@^2.29.2:
+  version "2.29.2"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.2.tgz#00910c60b20843bcba52d37d58c628b47b1f20e4"
+  integrity sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==
 
 mongodb-connection-string-url@^2.5.2:
   version "2.5.2"
@@ -2945,7 +2945,7 @@ shebang-regex@^3.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-sigma@^2.0.0-beta5:
+sigma@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/sigma/-/sigma-2.3.1.tgz#69fd9165479fa49ed84348afcd0432215fdf935f"
   integrity sha512-YfQsVZf78CeIUv8EYLqp/yvhMwwBXGrbpy+rD1N2X9IqtJ11+VfQRjWfVqHDhjM8oPfWPsaJMtpWFQ8pIflvCA==
