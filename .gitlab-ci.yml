@@ -8,17 +8,6 @@ cache:
 variables:
   GIT_SSL_NO_VERIFY: "1"
 
-pages:
-  script:
-    - yarn install
-    - yarn build --mode=production
-    - yarn layout -s $S3CFG_JSON -i twitter/results -o out -m FA2 -n 500 $EXTRA_PARAMS
-
-  artifacts:
-    paths:
-      - public
-  only:
-    - master
 
 build package:
   stage: build
