@@ -2,7 +2,7 @@
 .npmrc
 s3cfg
 s3cfg_se.json
-src/server.js
+serverCfg.json
 # build output
 public/
 

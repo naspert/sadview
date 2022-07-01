@@ -6,7 +6,8 @@ const webpack = require('webpack')
 module.exports = {
         entry: {
             index: './src/index.js',
-            viewer: './src/viewer.js'
+            viewer: './src/viewer.js',
+            hashtags: './src/hashtags.js'
         },
         output: {
             filename: '[name].js',
@@ -19,9 +20,9 @@ module.exports = {
             port: 9000
         },
         plugins: [
-            new CopyWebpackPlugin([
+            new CopyWebpackPlugin({ patterns: [
                {from: 'static'}
-            ]),
+            ]}),
             new Dotenv(),
             new webpack.ProvidePlugin({
                 $: 'jquery',

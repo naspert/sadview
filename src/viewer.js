@@ -7,6 +7,9 @@ import 'select2/dist/css/select2.min.css';
 import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css';
 import 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
+import '@fortawesome/fontawesome-free/js/fontawesome';
+import '@fortawesome/fontawesome-free/js/solid';
+import '@fortawesome/fontawesome-free/js/brands';
 import graph from 'graphology';
 import {parse as gexfParse} from 'graphology-gexf/node';
 import Sigma from 'sigma/sigma';
@@ -14,29 +17,125 @@ import pako from 'pako';
 import Color from 'color';
 import moment from 'moment';
 import numeral from 'numeral';
+import * as Sentry from "@sentry/browser";
+import { BrowserTracing } from "@sentry/tracing";
+import {plotHashtagsData} from "./hashtagsTimeline";
+
+if (window.loadSentry) {
+    Sentry.init({
+        dsn: window.sentryDsn,
+        integrations: [new BrowserTracing()],
+
+        tracesSampleRate: 0.5,
+    });
+}
 
 /* global vars */
 let highlightedNodes = new Set();
 let highlightedNeighbors = new Set();
 let highlightedEdges = new Set();
-let highlightedHashtagNode = new Set();
+
 let savedCoords = {};
 let displayNodeInfo = displayUserInfo;
-let selectedNode = "";
+let selectedNodes = new Set();
 let maxHop = 5;
 let currMaxHop = 5;
 let slider;
 let maxWeight = 1;
 let devEnv = false;
 let uuidGraph;
+
+let displayHashtagSubgraph = false;
+let selectedHashtags;
+let selectedHashtagNodes = new Set();
+let selectedHashtagEdges = new Set();
+let activeAcctsNodes = new Set();
+
+let displayCommunitiesSubgraph = false;
+let selectedCommunities = new Set();
+let selectedCommunitiesNodes = new Set();
+let selectedCommunitiesEdges = new Set();
+
 if (process.env.NODE_ENV !== 'production') {
     console.log('Looks like we are in development mode!');
     devEnv = true;
 }
 // API endpoint used to fetch JSON data
 let baseUrl = window.location.origin + '/viewer/graph-layout-data/';
+let hashtagsUrl = window.location.origin + '/viewer/hashtags-timeline/';
+
 if (devEnv) {
     baseUrl = "http://localhost:8000/viewer/graph-layout-data/";
+    hashtagsUrl = "http://localhost:8000/viewer/hashtags-timeline/";
+}
+
+function hashtagNodeSelector(node, attributes, selectedHashtags) {
+    let intersection = selectedHashtags.filter(x => attributes.hashtags.includes(x));
+    return intersection.length > 0;
+}
+
+function communityNodeSelector(node, attributes, selectedCommunities) {
+    return selectedCommunities.includes(attributes.community.toString());
+}
+
+function extractSubgraph(graphObj, nodeSelectorFunction, subgraphInfo, data) {
+    subgraphInfo.nodeSet = new Set();
+    subgraphInfo.edgeSet = new Set();
+    // build nodes list using selector function
+    for (const [node, attributes] of graphObj.nodeEntries()) {
+        if (nodeSelectorFunction(node, attributes, data))
+            subgraphInfo.nodeSet.add(node);
+    }
+
+    // build edges list for the considered nodes
+    for (const [edge, attributes, source, target, sourceAttributes, targetAttributes] of graphObj.edgeEntries()) {
+        if (subgraphInfo.nodeSet.has(source) && subgraphInfo.nodeSet.has(target))
+            subgraphInfo.edgeSet.add(edge);
+    }
+    console.log(`Subgraph has ${subgraphInfo.nodeSet.size} nodes and ${subgraphInfo.edgeSet.size} edges`);
+}
+
+function rebuildHashtagsSubgraph(graphObj, renderer) {
+    let subgraphInfo = {nodeSet: null, edgeSet: null};
+    selectedHashtags = $('#hashtag-selector').select2('data').map(c => c.id);
+    extractSubgraph(graphObj, hashtagNodeSelector, subgraphInfo, selectedHashtags);
+    selectedHashtagNodes = subgraphInfo.nodeSet;
+    selectedHashtagEdges = subgraphInfo.edgeSet;
+    console.log(`Subgraph has ${selectedHashtagNodes.size} nodes.`);
+    renderer.refresh();
+}
+
+function rebuildCommunitySubgraph(graphObj, renderer) {
+    let subgraphInfo = {nodeSet: null, edgeSet: null};
+    selectedCommunities = $('#community-selector').select2('data').map(c => c.id);
+    extractSubgraph(graphObj, communityNodeSelector, subgraphInfo, selectedCommunities);
+    selectedCommunitiesNodes = subgraphInfo.nodeSet;
+    selectedCommunitiesEdges = subgraphInfo.edgeSet;
+    console.log(`Subgraph has ${selectedCommunitiesNodes.size} nodes.`);
+    renderer.refresh();
+}
+
+function buildCommunitySearchUrl(graphObj, communityId) {
+    let nodeList = [];
+    let queryBaseUrl = "https://twitter.com/search?q=";
+    let queryFrom = [];
+    let queryTo = [];
+    let queryStr = "(";
+    graphObj.forEachNode((node, attributes) => {
+        if (attributes.community == communityId) {
+            nodeList.push({name: node, degree:attributes["degree"]});
+
+        }
+    });
+    nodeList.sort(function(a, b) {return b.degree - a.degree}); // sort by highest degree
+    for (const n of nodeList.slice(0,5)) { // make the query short (must fit in 512 chars)
+        queryFrom.push(`from:${n.name}`);
+        queryTo.push(`to:${n.name}`);
+    }
+    queryStr += queryFrom.join(" OR ") + ") (";
+    queryStr += queryTo.join(" OR ") + ")";
+    console.log("Twitter search query length is ", queryStr.length)
+    return queryBaseUrl + encodeURIComponent(queryStr) + "&f=live";
 }
 
 function formatAttributesCompat(attr_data) {
@@ -80,30 +179,9 @@ function formatAttributes(attr_data) {
 
 function formatCommunityInfo(commInfo,commId) {
     const density = (commInfo.density*100).toFixed(1);
-    return `<div class="card"><div class="card-body">
-                <h5 class="card-title">Community ${commId}</h5>
-                <p class="card-text">Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p>
-                <p class="card-text">Density: ${density} %</p>
-            </div></div>`;
-}
-
-function highlightNode(node, graph, renderer) {
-    console.log('Node selected: ' + node);
-    highlightedNeighbors = new Set(graph.neighbors(node));
-    highlightedNodes.add(node);
-    highlightedEdges = new Set(graph.edges(node));
-
-    renderer.refresh();
-}
-
-function highlightNodes(graph, hashtag, renderer) {
-    highlightedHashtagNode.clear(); // flush on new hashtag select
-    graph.forEachNode(n => {
-        const nodeHashtags = graph.getNodeAttribute(n, 'all_hashtags');
-        if (nodeHashtags.includes(hashtag))
-            highlightedHashtagNode.add(n);
-    });
-    renderer.refresh();
+    return `<h6 class="card-title">Community ${commId}</h6>
+            <p class="card-text">Size: ${commInfo.size}  Weighted size: ${commInfo.weightedSize}</p>
+            <p class="card-text">Density: ${density} %</p>`;
 }
 
 
@@ -121,11 +199,8 @@ function displayUserHashtags(node, attr, _) {
     if (node === "")
         return;
     import(/* webpackChunkName: "plotHashtags" */ './plotHashtags').then(module => {
-        const plotHashtags = module.plotHashtags;
-        const hashTags = attr['all_hashtags'] || '[]';
-        $('#userhashtags-disp').empty();
-        if (hashTags.length > 0)
-            plotHashtags(attr['all_hashtags'] || '[]'); // can be missing so avoid exceptions
+        const plotHashtags = module.plotHashtagsEC;
+        plotHashtags(attr.hashtagsHisto, 'userhashtags-disp'); // can be missing so avoid exceptions
     });
 }
 
@@ -135,6 +210,7 @@ function displayCommunityInfo(node, attr, clusterInfo) {
     const infoDisp = $('#comminfo-disp');
     const community = clusterInfo[attr.community];
     infoDisp[0].innerHTML = formatCommunityInfo(community, attr.community);
+    $('#twitter-search-link').attr('href', buildCommunitySearchUrl(window.graph, attr.community));
 }
 
 function displayCommunityVoc(node, attr, clusterInfo) {
@@ -166,17 +242,68 @@ function circlePackLayout(graphObj) {
     });
 }
 
+function plotHashtagsTimeline(uuidGraph) {
+    import(/*webpackChunkName: "hashtagsTimeline" */'./hashtagsTimeline').then(async module => {
+        const plotHashtagsData = module.plotHashtagsData;
+        await plotHashtagsData(`${hashtagsUrl}${uuidGraph}`, "hashtags-timeline-disp",
+            20, 24, 3, 3, (activeAccts) => {
+                //console.log(activeAccts);
+                activeAcctsNodes = new Set(Object.keys(activeAccts)); // TODO take into account number of #
+                renderer.refresh();
+            });
+    });
+}
+
 const nodeReducer = (node, data) => {
+    let alpha = 0.1;
+    let color = data.color;
+    let filterActive = displayHashtagSubgraph || displayCommunitiesSubgraph;
+    let filterMatch = false;
+    if (displayHashtagSubgraph && !displayCommunitiesSubgraph && selectedHashtagNodes.has(node)) {
+        alpha = 1;
+        filterMatch = true;
+    }
+    if (displayCommunitiesSubgraph && !displayHashtagSubgraph && selectedCommunitiesNodes.has(node))
+    {
+        alpha = 1;
+        filterMatch = true;
+    }
+    if (displayCommunitiesSubgraph && displayHashtagSubgraph) {
+        const commMatch = selectedCommunitiesNodes.has(node);
+        const hashtagMatch = selectedHashtagNodes.has(node);
+        if ((commMatch && !hashtagMatch) || (!commMatch && hashtagMatch)) { // match half of active filters
+            alpha = 0.5;
+            filterMatch = true;
+        }
+        else if (hashtagMatch && commMatch) { // full match
+            alpha = 1;
+            filterMatch = true;
+        }
+    }
+    if (filterActive) {
+        // if the node is selected, display it even if it is filtered out by hashtags/community
+        if (selectedNodes.has(node)) {
+            color = '#0f0';
+            if (!filterMatch)
+                alpha = 0.5;
+            else
+                alpha = 1;
+        }
+        const newColor = Color(color).alpha(alpha);
+        return {...data, color: newColor.rgb().string(), zIndex: 0};
+    }
+    if (activeAcctsNodes.has(node))
+        return {...data, color: '#a3a3ff', zIndex: 1};
+    if (selectedNodes.has(node))
+        return {...data, color: '#0f0', zIndex: 1};
     if (highlightedNodes.has(node))
         return {...data, color: '#f00', zIndex: 1};
-    else if (highlightedNeighbors.has(node))
+    if (highlightedNeighbors.has(node))
         return {...data, color: '#700', zIndex: 1};
-    else if (highlightedHashtagNode.has(node))
-        return {...data, color: '#0f0', zIndex: 1};
-    else if (data.spikyball_hop > currMaxHop) {
+    if (data.spikyball_hop > currMaxHop) {
         const delta = data.spikyball_hop - currMaxHop;
-        const alpha = Math.max(0.05, 0.3 - 0.1*(delta)); // do not use if spiky_hop == currMaxHop
-        const newColor = Color(data.color).darken(1.5*delta/maxHop).desaturate(1.5*delta/maxHop).alpha(alpha);
+        const alpha = Math.max(0.05, 0.3 - 0.1 * (delta)); // do not use if spiky_hop == currMaxHop
+        const newColor = Color(data.color).darken(1.5 * delta / maxHop).desaturate(1.5 * delta / maxHop).alpha(alpha);
 
         return {...data, color: newColor.rgb().string(), zIndex: 0};
     }
@@ -184,6 +311,12 @@ const nodeReducer = (node, data) => {
 };
 
 const edgeReducer = (edge, data) => {
+    if ((displayHashtagSubgraph && !selectedHashtagEdges.has(edge)) ||
+        (displayCommunitiesSubgraph && !selectedCommunitiesEdges.has(edge))) {
+        const alpha = 0.1;
+        const newColor = Color('#111').alpha(alpha);
+        return {...data, color: newColor.rgb().string()};
+    }
     if (highlightedEdges.has(edge))
         return {...data, color: '#500', zIndex: 1};
     const weight = data.weight;
@@ -209,7 +342,7 @@ const drawCustomLabel = (context, data, settings) => {
 function renderGraph(graphUUID) {
     const spinDisp = $('#spinner-disp');
     const layoutControls = $('#layout-controls');
-    let clusterInfo;// = graphLayoutData.clusterInfo;
+    let clusterInfo;
     let isGexf = false;
     let maxDegree = 0;
     let hashtagList = [];
@@ -218,7 +351,7 @@ function renderGraph(graphUUID) {
     $('#userinfo-disp').empty();
     $('#wordcloud-disp').empty();
     $('#comminfo-disp').empty();
-    selectedNode = ""
+    selectedNodes = new Set();
     console.log('Rendering...');
     if (window.graph)
         window.graph.clear();
@@ -255,6 +388,17 @@ function renderGraph(graphUUID) {
                 maxHop = g.getAttribute('max hop');
                 hashtagList = g.getAttribute('hashtags');
             }
+
+            // parse hashtags
+            g.forEachNode((key, attrs) => {
+                const jsonHashtags = attrs.all_hashtags || '[]';
+                const hashtagsHisto = Object.entries(JSON.parse(jsonHashtags.replace(/'/g, '"'))).map((p) => {
+                    return {name:p[0], num:p[1]};
+                }).sort(function(a,b) {return b.num - a.num});
+                g.setNodeAttribute(key, 'hashtagsHisto', hashtagsHisto);
+                g.setNodeAttribute(key, 'hashtags', hashtagsHisto.map(h => h.name));
+            });
+
             const renderer = new Sigma(g, container[0], {
                 nodeReducer,
                 edgeReducer,
@@ -277,7 +421,6 @@ function renderGraph(graphUUID) {
 
             renderer.on('clickNode', ({node}) => {
                 const attr = g.getNodeAttributes(node);
-                selectedNode = node;
                 displayNodeInfo(node, attr, clusterInfo);
             });
 
@@ -296,20 +439,26 @@ function renderGraph(graphUUID) {
                 }
             }));
             console.log('select2 creation');
-            const nodeSelect2 = $('.node-selector');
+            const nodeSelect2 = $('#node-selector');
             nodeSelect2.empty();
             nodeSelect2.select2({
                 placeholder: 'Search node',
                 theme: 'bootstrap4',
-                data: nodeSelectData
+                data: nodeSelectData,
+                multiple: true
             });
 
-            nodeSelect2.off('select2:select');
+            nodeSelect2.off('select2:select select2:unselect');
             nodeSelect2.on('select2:select', e => {
                 const node = e.params.data.id;
-                highlightNode(node, g, renderer);
-                selectedNode = node;
+                selectedNodes.add(node);
                 displayNodeInfo(node, g.getNodeAttributes(node), clusterInfo);
+                renderer.refresh();
+            });
+            nodeSelect2.on('select2:unselect', e => {
+                const node = e.params.data.id;
+                selectedNodes.delete(node);
+                renderer.refresh();
             });
 
             const hashtagSelectData = [{id: '', text: ''}].concat($.map(hashtagList, function (h) {
@@ -319,17 +468,38 @@ function renderGraph(graphUUID) {
                     selected: false
                 }
             }));
-            const hashtagSelect = $('.hashtag-selector');
+            const hashtagSelect = $('#hashtag-selector');
             hashtagSelect.empty();
             hashtagSelect.select2({
                 placeholder: 'Search hashtag',
                 theme: 'bootstrap4',
+                multiple: true,
                 data: hashtagSelectData
             });
-            hashtagSelect.off('select2:select');
-            hashtagSelect.on('select2:select', e => {
-                const htag = e.params.data.id;
-                highlightNodes(g, htag, renderer);
+            hashtagSelect.off('select2:select select2:unselect');
+            hashtagSelect.on('select2:select select2:unselect', e => {
+                if (displayHashtagSubgraph)
+                    rebuildHashtagsSubgraph(g, renderer);
+            });
+
+            const communitySelectData =  [{id: '', text: ''}].concat($.map(Object.keys(clusterInfo), function (h) {
+                return {
+                    id: h,
+                    text: `Community ${h}`,
+                    selected: false
+                }
+            }));
+            const communitySelect = $('#community-selector');
+            communitySelect.empty();
+            communitySelect.select2({
+                theme: 'bootstrap4',
+                multiple: true,
+                data: communitySelectData
+            });
+            communitySelect.off('select2:select select2:unselect');
+            communitySelect.on('select2:select select2:unselect', e => {
+                if (displayCommunitiesSubgraph)
+                    rebuildCommunitySubgraph(g, renderer);
             });
 
             currMaxHop = maxHop;
@@ -350,6 +520,7 @@ function renderGraph(graphUUID) {
             window.camera = renderer.camera;
             spinDisp.hide();
             layoutControls.show();
+            plotHashtagsTimeline(graphUUID);
             console.log('Rendering done');
         });
 }
@@ -404,6 +575,38 @@ window.onload = function() {
         if ($('#circlepack').parent().hasClass('active')) {
             circlePackLayout(window.graph);
         }
+    });
+
+    $('#hashtag-filter').click(() => {
+        if($('#hashtag-filter').hasClass('active')) {
+            console.log('de-activate hashtag filter');
+            displayHashtagSubgraph = false;
+            selectedHashtags = null;
+            window.renderer.refresh();
+        } else {
+            console.log('activate hashtag filter');
+            displayHashtagSubgraph = true;
+            rebuildHashtagsSubgraph(window.graph, window.renderer);
+        }
+    });
+
+    $('#community-filter').click(() => {
+        if ($('#community-filter').hasClass('active')) {
+            console.log('de-activate community filter');
+            displayCommunitiesSubgraph = false;
+            selectedCommunities = null;
+            window.renderer.refresh();
+        } else {
+            console.log('activate community filter');
+            displayCommunitiesSubgraph = true;
+            rebuildCommunitySubgraph(window.graph, window.renderer);
+        }
+    });
+
+    // clear highlighted nodes when leaving timeline
+    $('#hashtags-timeline-disp').mouseleave(() => {
+        activeAcctsNodes = new Set();
+        window.renderer.refresh();
     });
     console.log('onload complete');
 }

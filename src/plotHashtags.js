@@ -1,58 +1,67 @@
-import plotly from 'plotly.js-basic-dist-min';
+import _ from 'lodash';
+import * as echarts from 'echarts/core';
+import {
+    GridComponent,
+    TitleComponent,
+    TooltipComponent
+} from 'echarts/components';
+import { BarChart } from 'echarts/charts';
+import { CanvasRenderer } from 'echarts/renderers';
 
-export function plotHashtags(htListJson) {
-    // get sorted hashtags list with most used first
-    const hashtags = Object.entries(JSON.parse(htListJson.replace(/'/g, '"'))).map((p) => {
-        return {name:p[0], num:p[1]};
-    }).sort(function(a,b) {return b.num - a.num});
-    const x = hashtags.map(t => t.name);
-    const y = hashtags.map(t => t.num);
-    const data = [
-        {
-            x: x,
-            y: y,
-            type: 'bar',
-        }
-    ];
-
-    const layout = {
-        autosize: false,
-        height: 200,
-        margin: {
-            l: 50,
-            r: 5,
-            b: 100,
-            t: 10,
-            pad: 4
-        }
-    };
-    plotly.newPlot('userhashtags-disp', data, layout);
+echarts.use([GridComponent, BarChart, CanvasRenderer, TitleComponent, TooltipComponent]);
+export function plotHashtagsEC(hashtags, userHashtagsContainerId) {
+    // aggregate hashtags having different cases
+    const hashtagsLower = hashtags.map(t => ({name: t.name.toLowerCase(), num: t.num}));
+    const grpHashtags = _.groupBy(hashtagsLower, 'name');
+    const aggrHashtags = _.mapValues(grpHashtags, v => _.sumBy(v, 'num'));
+    const filtHashtags = _.keys(aggrHashtags).map(t => ({name: t, num: aggrHashtags[t]})).filter(t => t.num>1);
+    const sortHashtags = _.orderBy(filtHashtags, ['num'], ['desc']);
+    const x = sortHashtags.map(t => t.name); // x axis is categories
+    const y = sortHashtags.map(t => t.num); // y is count
+    let options = {
+        title: {
+            text: 'User hashtags'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'line',
+                label: {
+                    backgroundColor: '#283b56'
+                }
+            }
+        },
+        grid: {
+            containLabel: true
+        },
+        xAxis: {
+            z: 10,
+            type: 'category',
+            data: x,
+            axisLabel: {
+                rotate: 90,
+                inside: true,
+                color: '#d4a246'
+            },
+            axisTick: {
+                show: false
+            }
+        },
+        yAxis: {
+            type: 'value',
+        },
+        series: [
+            {
+                data: y,
+                type: 'bar',
+                showBackground: true,
+                backgroundStyle:{
+                    color: 'rgba(160, 160, 160, 0.2)'
+                }
+            }
+        ]
+    }
+    let userHashtagPlots = echarts.init(document.getElementById(userHashtagsContainerId));
+    userHashtagPlots.setOption(options);
 }
 
-export function plotCommunityVoc(commInfo) {
-    const sortedLex = Object.entries(commInfo.lexical).map((p) => {
-        return {name:p[0], num:p[1]};
-    }).sort(function(a,b) {return b.num - a.num});
-    const x = sortedLex.map(t => t.name);
-    const y = sortedLex.map(t => t.num);
-    const data = [
-        {
-            x: x,
-            y: y,
-            type: 'bar',
-        }
-    ];
-
-    const layout = {
-        autosize: false,
-        height: 200,
-        margin: {
-            l: 50,
-            r: 5,
-            b: 100,
-            t: 10,
-            pad: 4
-        }
-    };
-    plotly.newPlot('cluster-lex', data, layout);
-}

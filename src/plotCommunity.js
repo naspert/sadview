@@ -23,7 +23,7 @@ export function plotCommunityWordcloud(commInfo, iramuteqLex=true) {
         .map((p) => {
             return {
                 text:p[0],
-                size: iramuteqLex ? Math.round(2 + 10*Math.log(p[1])):Math.round(2 + 10*Math.log(p[1][1]))};
+                size: iramuteqLex ? Math.round(2.5 + 9.5*Math.log(p[1])):Math.round(2.5 + 9.5*Math.log(p[1][1]))};
         });
     console.log("Community lex has ", Object.keys(words).length, " words");
 
